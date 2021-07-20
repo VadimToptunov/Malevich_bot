@@ -1,3 +1,3 @@
-class Creds():
-    LOGIN = "<your Instagram login>"
-    PASS = "your Instagram passwordgit init"
+class Creds:
+    LOGIN = "Malevich_bot"
+    PASS = "P@ng0l1nBlue$"
