@@ -75,18 +75,17 @@ class AvantGuard:
 
         for x in range(random.randint(min, 10)):
             if rectangle is True:
-                draw.rectangle(self.random_parameters(width), fill=ImageColor.getcolor(self.random_color(), color_scheme))
+                draw.rectangle(self.random_parameters(width),
+                               fill=ImageColor.getcolor(self.random_color(), color_scheme))
             else:
                 pass
         image_file = self.tech.create_random_filename()
         image.save(image_file)
         return image_file
 
-
     def random_parameters(self, upper_range):
         return (random.randint(min, upper_range), random.randint(min, upper_range),
                 random.randint(min, upper_range), random.randint(min, upper_range))
-
 
     def random_polygon(self, x, y):
         try:
