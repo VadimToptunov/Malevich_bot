@@ -1,7 +1,9 @@
+import random
+
 from PIL import Image
 from PIL import ImageColor
 from PIL import ImageDraw
-import random
+
 from Malevich.tech import Tech
 
 color_scheme = "RGB"

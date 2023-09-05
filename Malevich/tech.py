@@ -4,10 +4,10 @@ import pathlib
 import random
 import string
 
-
 min = 0
 col_max = 256
 name_length = 16
+
 
 class Tech:
 
