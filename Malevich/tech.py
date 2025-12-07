@@ -5,7 +5,7 @@ import random
 import string
 
 MIN_VALUE = 0  # Fixed: avoid shadowing built-in min()
-COL_MAX = 256
+COL_MAX = 255  # Fixed: RGB values must be in [0, 255], not [0, 256]
 NAME_LENGTH = 16
 
 

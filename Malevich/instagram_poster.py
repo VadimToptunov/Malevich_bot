@@ -131,10 +131,12 @@ class InstagramPoster:
         new_image.paste(image, (x, y))
         
         # Save prepared image
-        output_path = image_path.replace('.jpg', f'_instagram_{format}.jpg')
-        new_image.save(output_path, 'JPEG', quality=95)
+        # Fixed: use Path for extension-safe filename handling
+        input_path = Path(image_path)
+        output_path = input_path.parent / f"{input_path.stem}_instagram_{format}.jpg"
+        new_image.save(str(output_path), 'JPEG', quality=95)
         
-        return output_path
+        return str(output_path)
     
     def post_image(self, image_path: str, caption: str = "", 
                    hashtags: Optional[List[str]] = None) -> bool:
@@ -212,7 +214,9 @@ class InstagramImagePreparer:
         new_image.paste(image, (x, y))
         
         # Save prepared image
-        output_path = image_path.replace('.jpg', f'_instagram_{format}.jpg')
-        new_image.save(output_path, 'JPEG', quality=95)
+        # Fixed: use Path for extension-safe filename handling
+        input_path = Path(image_path)
+        output_path = input_path.parent / f"{input_path.stem}_instagram_{format}.jpg"
+        new_image.save(str(output_path), 'JPEG', quality=95)
         
-        return output_path
+        return str(output_path)
