@@ -3,6 +3,7 @@ Script to generate example images for all art styles.
 All documentation in English.
 """
 import logging
+import random
 from pathlib import Path
 from Malevich.master_generator import MasterGenerator
 
@@ -24,25 +25,39 @@ STYLES = [
 ]
 
 
-def generate_all_examples():
-    """Generate example images for all art styles."""
+def generate_all_examples(count: int = 50):
+    """
+    Generate example images for all art styles.
+    
+    Args:
+        count: Number of images to generate (default: 50)
+    """
     generator = MasterGenerator(width=1080, height=1080)
     
-    logger.info("Starting generation of example images for all styles...")
+    logger.info(f"Starting generation of {count} example images...")
     
-    for style in STYLES:
-        logger.info(f"Generating {style} style image...")
+    generated = 0
+    errors = 0
+    
+    for i in range(count):
+        # Randomly select a style
+        style = random.choice(STYLES)
+        logger.info(f"Generating image {i+1}/{count} ({style} style)...")
         try:
             image = generator.generate(style=style, palette_name=None)
-            filename = f"example_{style}.jpg"
+            filename = f"example_{i+1:03d}_{style}.jpg"
             filepath = OUTPUT_DIR / filename
             image.save(filepath, 'JPEG', quality=95)
+            generated += 1
             logger.info(f"✓ Saved: {filepath}")
         except Exception as e:
+            errors += 1
             logger.error(f"✗ Error generating {style}: {e}")
     
-    logger.info(f"\nAll examples generated in: {OUTPUT_DIR.absolute()}")
-    logger.info(f"Generated {len(STYLES)} example images")
+    logger.info(f"\nGeneration complete!")
+    logger.info(f"Generated: {generated} images")
+    logger.info(f"Errors: {errors}")
+    logger.info(f"Location: {OUTPUT_DIR.absolute()}")
 
 
 if __name__ == "__main__":

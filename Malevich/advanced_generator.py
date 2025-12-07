@@ -345,7 +345,13 @@ class AdvancedGenerator:
         # Add dreamlike gradients
         if random.random() < 0.5:
             base_color = random.choice(palette)
-            target_color = random.choice([c for c in palette if c != base_color])
+            # Fixed: handle case where all colors are identical
+            different_colors = [c for c in palette if c != base_color]
+            if different_colors:
+                target_color = random.choice(different_colors)
+            else:
+                # If all colors are the same, create a slightly modified version
+                target_color = tuple(min(255, max(0, c + random.randint(-30, 30))) for c in base_color)
             image = self._create_radial_gradient(image, base_color, target_color,
                                                 center_x=random.randint(0, self.width),
                                                 center_y=random.randint(0, self.height))
@@ -468,7 +474,13 @@ class AdvancedGenerator:
         """Create hybrid composition mixing different styles."""
         # Start with gradient background
         base_color = random.choice(palette)
-        target_color = random.choice([c for c in palette if c != base_color])
+        # Fixed: handle case where all colors are identical
+        different_colors = [c for c in palette if c != base_color]
+        if different_colors:
+            target_color = random.choice(different_colors)
+        else:
+            # If all colors are the same, create a slightly modified version
+            target_color = tuple(min(255, max(0, c + random.randint(-30, 30))) for c in base_color)
         image = self._create_radial_gradient(image, base_color, target_color)
         
         # Add elements from different styles
