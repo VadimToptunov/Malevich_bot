@@ -1,5 +1,6 @@
 """
-Планировщик для автоматической публикации постов в Instagram.
+Scheduler for automatic Instagram post publishing.
+All documentation in English.
 """
 import schedule
 import time
@@ -12,18 +13,18 @@ logger = logging.getLogger(__name__)
 
 
 class PostScheduler:
-    """Планировщик постов в Instagram."""
+    """Scheduler for Instagram posts."""
     
     def __init__(self, post_function: Callable, 
                  times: Optional[list] = None,
                  interval_hours: Optional[int] = None):
         """
-        Инициализация планировщика.
+        Initialize scheduler.
         
         Args:
-            post_function: Функция для публикации поста (должна принимать 0 аргументов)
-            times: Список времени для публикации (формат "HH:MM"), например ["09:00", "18:00"]
-            interval_hours: Интервал между постами в часах (если не указаны times)
+            post_function: Function to execute for posting (should take 0 arguments)
+            times: List of posting times (format "HH:MM"), e.g., ["09:00", "18:00"]
+            interval_hours: Interval between posts in hours (if times not provided)
         """
         self.post_function = post_function
         self.times = times or []
@@ -33,69 +34,68 @@ class PostScheduler:
         self._setup_schedule()
     
     def _setup_schedule(self):
-        """Настраивает расписание."""
+        """Set up schedule."""
         if self.times:
             for time_str in self.times:
                 schedule.every().day.at(time_str).do(self._safe_post)
-                logger.info(f"Запланирован пост на {time_str}")
+                logger.info(f"Scheduled post at {time_str}")
         elif self.interval_hours:
             schedule.every(self.interval_hours).hours.do(self._safe_post)
-            logger.info(f"Запланирован пост каждые {self.interval_hours} часов")
+            logger.info(f"Scheduled post every {self.interval_hours} hours")
         else:
-            # По умолчанию: 2 раза в день в 10:00 и 20:00
+            # Default: 2 times per day at 10:00 and 20:00
             schedule.every().day.at("10:00").do(self._safe_post)
             schedule.every().day.at("20:00").do(self._safe_post)
-            logger.info("Используется расписание по умолчанию: 10:00 и 20:00")
+            logger.info("Using default schedule: 10:00 and 20:00")
     
     def _safe_post(self):
-        """Безопасный вызов функции постинга с обработкой ошибок."""
+        """Safely execute post function with error handling."""
         try:
-            logger.info(f"Запуск запланированного поста в {datetime.now()}")
+            logger.info(f"Running scheduled post at {datetime.now()}")
             self.post_function()
-            logger.info("Пост успешно опубликован")
+            logger.info("Post successfully published")
         except Exception as e:
-            logger.error(f"Ошибка при публикации поста: {e}")
+            logger.error(f"Error publishing post: {e}")
     
     def start(self, check_interval: int = 60):
         """
-        Запускает планировщик.
+        Start scheduler.
         
         Args:
-            check_interval: Интервал проверки расписания в секундах
+            check_interval: Schedule check interval in seconds
         """
         self.running = True
-        logger.info("Планировщик запущен")
+        logger.info("Scheduler started")
         
         while self.running:
             schedule.run_pending()
             time.sleep(check_interval)
     
     def stop(self):
-        """Останавливает планировщик."""
+        """Stop scheduler."""
         self.running = False
-        logger.info("Планировщик остановлен")
+        logger.info("Scheduler stopped")
     
     def run_once(self):
-        """Запускает один пост немедленно (для тестирования)."""
+        """Run one post immediately (for testing)."""
         self._safe_post()
 
 
 def create_scheduler_from_config(post_function: Callable, config: dict) -> PostScheduler:
     """
-    Создает планировщик из конфигурационного словаря.
+    Create scheduler from configuration dictionary.
     
     Args:
-        post_function: Функция для публикации
-        config: Словарь с настройками:
-            - times: список времени
-            - interval_hours: интервал в часах
+        post_function: Function for posting
+        config: Dictionary with settings:
+            - times: list of times
+            - interval_hours: interval in hours
     
     Returns:
-        PostScheduler объект
+        PostScheduler object
     """
     return PostScheduler(
         post_function=post_function,
         times=config.get('times'),
         interval_hours=config.get('interval_hours')
     )
-

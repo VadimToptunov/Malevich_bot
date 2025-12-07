@@ -1,6 +1,7 @@
 """
-Модуль для постинга изображений в Instagram.
-Использует instagrapi для работы с Instagram API.
+Module for posting images to Instagram.
+Uses instagrapi for Instagram API interaction.
+All documentation in English.
 """
 import os
 import logging
@@ -20,27 +21,27 @@ logger = logging.getLogger(__name__)
 
 
 class InstagramPoster:
-    """Класс для постинга изображений в Instagram."""
+    """Class for posting images to Instagram."""
     
-    # Рекомендуемые размеры для Instagram
+    # Recommended sizes for Instagram
     INSTAGRAM_SIZES = {
-        'square': (1080, 1080),      # Квадрат
-        'portrait': (1080, 1350),    # Вертикаль (4:5)
-        'landscape': (1080, 566),    # Горизонталь (1.91:1)
+        'square': (1080, 1080),      # Square
+        'portrait': (1080, 1350),    # Vertical (4:5)
+        'landscape': (1080, 566),    # Horizontal (1.91:1)
         'story': (1080, 1920),       # Stories (9:16)
     }
     
     def __init__(self, username: Optional[str] = None, password: Optional[str] = None):
         """
-        Инициализация Instagram клиента.
+        Initialize Instagram client.
         
         Args:
-            username: Имя пользователя Instagram
-            password: Пароль Instagram
+            username: Instagram username
+            password: Instagram password
         """
         if Client is None:
             raise ImportError(
-                "instagrapi не установлен. Установите его: pip install instagrapi"
+                "instagrapi is not installed. Install it: pip install instagrapi"
             )
         
         self.client = Client()
@@ -51,36 +52,36 @@ class InstagramPoster:
     def login(self, username: Optional[str] = None, password: Optional[str] = None,
               session_file: Optional[str] = None) -> bool:
         """
-        Вход в Instagram.
+        Login to Instagram.
         
         Args:
-            username: Имя пользователя (если не указано при инициализации)
-            password: Пароль (если не указан при инициализации)
-            session_file: Путь к файлу сессии для сохранения
+            username: Username (if not provided during initialization)
+            password: Password (if not provided during initialization)
+            session_file: Path to session file for saving
             
         Returns:
-            True если вход успешен
+            True if login successful
         """
         username = username or self.username
         password = password or self.password
         
         if not username or not password:
-            raise ValueError("Необходимо указать username и password")
+            raise ValueError("Username and password must be provided")
         
         try:
-            # Пытаемся загрузить сессию из файла
+            # Try to load session from file
             if session_file and os.path.exists(session_file):
                 try:
                     self.client.load_settings(session_file)
                     self.client.login(username, password)
-                    logger.info("Вход выполнен с использованием сохраненной сессии")
+                    logger.info("Logged in using saved session")
                 except Exception as e:
-                    logger.warning(f"Не удалось загрузить сессию: {e}")
+                    logger.warning(f"Failed to load session: {e}")
                     self.client.login(username, password)
             else:
                 self.client.login(username, password)
             
-            # Сохраняем сессию
+            # Save session
             if session_file:
                 self.client.dump_settings(session_file)
             
@@ -89,47 +90,47 @@ class InstagramPoster:
             return True
             
         except ChallengeRequired:
-            logger.error("Требуется двухфакторная аутентификация")
+            logger.error("Two-factor authentication required")
             raise
         except LoginRequired:
-            logger.error("Ошибка входа. Проверьте логин и пароль")
+            logger.error("Login error. Check username and password")
             raise
         except Exception as e:
-            logger.error(f"Ошибка при входе: {e}")
+            logger.error(f"Error during login: {e}")
             raise
     
     def prepare_image_for_instagram(self, image_path: str, 
                                    format: str = 'square') -> str:
         """
-        Подготавливает изображение для Instagram (изменяет размер).
+        Prepare image for Instagram (resize to appropriate dimensions).
         
         Args:
-            image_path: Путь к исходному изображению
-            format: Формат ('square', 'portrait', 'landscape', 'story')
+            image_path: Path to source image
+            format: Format ('square', 'portrait', 'landscape', 'story')
             
         Returns:
-            Путь к подготовленному изображению
+            Path to prepared image
         """
         if format not in self.INSTAGRAM_SIZES:
-            raise ValueError(f"Неизвестный формат: {format}")
+            raise ValueError(f"Unknown format: {format}")
         
         target_size = self.INSTAGRAM_SIZES[format]
         
-        # Открываем изображение
+        # Open image
         image = Image.open(image_path)
         
-        # Изменяем размер с сохранением пропорций и центрированием
+        # Resize with aspect ratio preservation and centering
         image.thumbnail(target_size, Image.Resampling.LANCZOS)
         
-        # Создаем новое изображение нужного размера
+        # Create new image with target size
         new_image = Image.new('RGB', target_size, (255, 255, 255))
         
-        # Вставляем изображение по центру
+        # Paste image centered
         x = (target_size[0] - image.size[0]) // 2
         y = (target_size[1] - image.size[1]) // 2
         new_image.paste(image, (x, y))
         
-        # Сохраняем подготовленное изображение
+        # Save prepared image
         output_path = image_path.replace('.jpg', f'_instagram_{format}.jpg')
         new_image.save(output_path, 'JPEG', quality=95)
         
@@ -138,77 +139,41 @@ class InstagramPoster:
     def post_image(self, image_path: str, caption: str = "", 
                    hashtags: Optional[List[str]] = None) -> bool:
         """
-        Публикует изображение в Instagram.
+        Post image to Instagram.
         
         Args:
-            image_path: Путь к изображению
-            caption: Подпись к посту
-            hashtags: Список хештегов
+            image_path: Path to image
+            caption: Post caption
+            hashtags: List of hashtags
             
         Returns:
-            True если публикация успешна
+            True if post successful
         """
         if not self.is_logged_in:
-            raise RuntimeError("Необходимо войти в Instagram. Вызовите login()")
+            raise RuntimeError("Must login to Instagram. Call login()")
         
-        # Добавляем хештеги к подписи
+        # Add hashtags to caption
         if hashtags:
             hashtag_string = " ".join([f"#{tag}" for tag in hashtags])
             caption = f"{caption}\n\n{hashtag_string}" if caption else hashtag_string
         
         try:
             self.client.photo_upload(image_path, caption)
-            logger.info(f"Изображение успешно опубликовано: {image_path}")
+            logger.info(f"Image successfully posted: {image_path}")
             return True
         except Exception as e:
-            logger.error(f"Ошибка при публикации: {e}")
+            logger.error(f"Error posting image: {e}")
             raise
-    
-    def generate_hashtags(self, style: str = 'avantgarde') -> List[str]:
-        """
-        Генерирует релевантные хештеги для авангардного искусства.
-        
-        Args:
-            style: Стиль изображения
-            
-        Returns:
-            Список хештегов
-        """
-        base_hashtags = [
-            'abstractart', 'contemporaryart', 'digitalart', 'modernart',
-            'artwork', 'art', 'abstract', 'geometric', 'minimalist'
-        ]
-        
-        style_hashtags = {
-            'avantgarde': ['avantgarde', 'suprematism', 'constructivism', 'abstractexpressionism'],
-            'geometric': ['geometricart', 'geometric', 'minimalism', 'lines'],
-            'organic': ['organic', 'flow', 'fluid', 'nature'],
-            'gradient': ['gradient', 'colorful', 'vibrant', 'color']
-        }
-        
-        hashtags = base_hashtags.copy()
-        if style in style_hashtags:
-            hashtags.extend(style_hashtags[style])
-        
-        # Добавляем случайные дополнительные
-        additional = [
-            'artdaily', 'instaart', 'artgallery', 'artlovers',
-            'creative', 'design', 'visualart', 'artistic'
-        ]
-        hashtags.extend(random.sample(additional, 3))
-        
-        return hashtags[:20]  # Instagram ограничивает до 30 хештегов, берем 20
 
 
-# Утилита для работы без авторизации (только подготовка изображений)
+# Utility for working without authentication (image preparation only)
 class InstagramImagePreparer:
-    """Утилита для подготовки изображений без авторизации в Instagram."""
+    """Utility for preparing images without Instagram authentication."""
     
     def __init__(self):
         self.sizes = InstagramPoster.INSTAGRAM_SIZES
     
     def prepare(self, image_path: str, format: str = 'square') -> str:
-        """Подготавливает изображение для Instagram."""
+        """Prepare image for Instagram."""
         poster = InstagramPoster()
         return poster.prepare_image_for_instagram(image_path, format)
-
