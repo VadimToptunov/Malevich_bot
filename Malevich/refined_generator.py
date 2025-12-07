@@ -1,6 +1,7 @@
 """
-Улучшенный генератор авангардных изображений с более изысканными техниками.
-Использует градиенты, продвинутые цветовые палитры и композиционные правила.
+Improved generator for avant-garde images with more refined techniques.
+Uses gradients, advanced color palettes, and compositional rules.
+All documentation in English.
 """
 import random
 import math
@@ -11,32 +12,32 @@ from colorsys import hsv_to_rgb, rgb_to_hsv
 
 
 class RefinedGenerator:
-    """Генератор изысканных авангардных изображений."""
+    """Generator for refined avant-garde images."""
     
-    # Цветовые палитры в стиле авангарда
+    # Color palettes in avant-garde style
     AVANTGARDE_PALETTES = {
         'suprematist': [
-            # Черный, белый, красный, синий, желтый - классика супрематизма
+            # Black, white, red, blue, yellow - suprematism classics
             (0, 0, 0), (255, 255, 255), (255, 0, 0), 
             (0, 0, 255), (255, 255, 0)
         ],
         'constructivist': [
-            # Красный, черный, белый, серый
+            # Red, black, white, gray
             (220, 20, 60), (0, 0, 0), (255, 255, 255),
             (128, 128, 128), (192, 192, 192)
         ],
         'modern_abstract': [
-            # Современная абстракция с приглушенными тонами
+            # Modern abstraction with muted tones
             (139, 69, 19), (70, 130, 180), (255, 140, 0),
             (75, 0, 130), (255, 20, 147)
         ],
         'monochrome': [
-            # Монохром с акцентами
+            # Monochrome with accents
             (20, 20, 20), (60, 60, 60), (120, 120, 120),
             (180, 180, 180), (240, 240, 240)
         ],
         'vibrant': [
-            # Яркие контрастные цвета
+            # Bright contrasting colors
             (255, 0, 127), (0, 255, 127), (127, 0, 255),
             (255, 127, 0), (0, 127, 255)
         ]
@@ -44,11 +45,11 @@ class RefinedGenerator:
     
     def __init__(self, width: int = 1080, height: int = 1080):
         """
-        Инициализация генератора.
+        Initialize generator.
         
         Args:
-            width: Ширина изображения (по умолчанию 1080 для Instagram)
-            height: Высота изображения (по умолчанию 1080 для Instagram)
+            width: Image width (default 1080 for Instagram)
+            height: Image height (default 1080 for Instagram)
         """
         self.width = width
         self.height = height
@@ -57,14 +58,14 @@ class RefinedGenerator:
         
     def generate(self, style: str = 'auto', palette_name: Optional[str] = None) -> Image.Image:
         """
-        Генерирует изысканное авангардное изображение.
+        Generate refined avant-garde image.
         
         Args:
-            style: Стиль генерации ('geometric', 'organic', 'gradient', 'hybrid', 'auto')
-            palette_name: Название палитры из AVANTGARDE_PALETTES
+            style: Generation style ('geometric', 'organic', 'gradient', 'hybrid', 'auto')
+            palette_name: Palette name from AVANTGARDE_PALETTES
             
         Returns:
-            PIL Image объект
+            PIL Image object
         """
         if style == 'auto':
             style = random.choice(['geometric', 'organic', 'gradient', 'hybrid'])
@@ -81,23 +82,23 @@ class RefinedGenerator:
         else:  # hybrid
             image = self._add_hybrid_composition(image, palette)
         
-        # Финальная обработка
+        # Final processing
         image = self._apply_final_touches(image)
         return image
     
     def _get_palette(self, palette_name: Optional[str] = None) -> List[Tuple[int, int, int]]:
-        """Получает цветовую палитру."""
+        """Get color palette."""
         if palette_name and palette_name in self.AVANTGARDE_PALETTES:
             return self.AVANTGARDE_PALETTES[palette_name]
         return random.choice(list(self.AVANTGARDE_PALETTES.values()))
     
     def _get_background_color(self, palette: List[Tuple[int, int, int]]) -> Tuple[int, int, int]:
-        """Выбирает цвет фона из палитры (обычно светлый или темный)."""
-        # Предпочитаем светлые или темные цвета для фона
+        """Select background color from palette (usually light or dark)."""
+        # Prefer light or dark colors for background
         weights = []
         for color in palette:
             brightness = sum(color) / 3
-            # Предпочитаем очень светлые или очень темные
+            # Prefer very light or very dark
             if brightness < 50 or brightness > 200:
                 weights.append(3)
             else:
@@ -105,10 +106,10 @@ class RefinedGenerator:
         return random.choices(palette, weights=weights)[0]
     
     def _add_geometric_composition(self, image: Image.Image, palette: List[Tuple[int, int, int]]) -> Image.Image:
-        """Добавляет геометрическую композицию с правилом третей."""
+        """Add geometric composition with rule of thirds."""
         draw = ImageDraw.Draw(image)
         
-        # Используем правило третей для размещения элементов
+        # Use rule of thirds for element placement
         third_w = self.width // 3
         third_h = self.height // 3
         
@@ -119,8 +120,8 @@ class RefinedGenerator:
             color = random.choice(palette)
             alpha = random.randint(200, 255)
             
-            # Размещаем элементы в ключевых точках (правило третей)
-            if random.random() < 0.7:  # 70% элементов в ключевых точках
+            # Place elements at key points (rule of thirds)
+            if random.random() < 0.7:  # 70% of elements at key points
                 x = random.choice([third_w, third_w * 2, self.center_x])
                 y = random.choice([third_h, third_h * 2, self.center_y])
             else:
@@ -130,7 +131,7 @@ class RefinedGenerator:
             size = random.randint(self.width // 10, self.width // 3)
             
             if shape_type == 'rectangle':
-                # Прямоугольники с возможным поворотом
+                # Rectangles with possible rotation
                 angle = random.uniform(0, 45) if random.random() < 0.3 else 0
                 self._draw_rotated_rectangle(draw, x, y, size, size * random.uniform(0.5, 1.5), 
                                             color, angle)
@@ -141,7 +142,7 @@ class RefinedGenerator:
                 points = self._generate_polygon_points(x, y, size, random.randint(3, 8))
                 draw.polygon(points, fill=color, outline=color)
             else:  # line
-                # Толстые линии для драматизма
+                # Thick lines for drama
                 thickness = random.randint(2, 15)
                 x2 = x + random.randint(-self.width//2, self.width//2)
                 y2 = y + random.randint(-self.height//2, self.height//2)
@@ -150,16 +151,16 @@ class RefinedGenerator:
         return image
     
     def _add_organic_shapes(self, image: Image.Image, palette: List[Tuple[int, int, int]]) -> Image.Image:
-        """Добавляет органические формы с плавными переходами."""
+        """Add organic shapes with smooth transitions."""
         draw = ImageDraw.Draw(image)
         
-        # Создаем плавные кривые Безье
+        # Create smooth Bezier curves
         num_shapes = random.randint(2, 5)
         
         for _ in range(num_shapes):
             color = random.choice(palette)
             
-            # Генерируем кривую Безье
+            # Generate Bezier curve
             start_x = random.randint(0, self.width)
             start_y = random.randint(0, self.height)
             
@@ -171,14 +172,14 @@ class RefinedGenerator:
             end_x = random.randint(0, self.width)
             end_y = random.randint(0, self.height)
             
-            # Рисуем кривую точками для плавности
+            # Draw curve with points for smoothness
             points = []
             for t in np.linspace(0, 1, 100):
                 x = (1-t)**3 * start_x + 3*(1-t)**2*t * control1_x + 3*(1-t)*t**2 * control2_x + t**3 * end_x
                 y = (1-t)**3 * start_y + 3*(1-t)**2*t * control1_y + 3*(1-t)*t**2 * control2_y + t**3 * end_y
                 points.append((int(x), int(y)))
             
-            # Создаем заливку вокруг кривой
+            # Create fill around curve
             thickness = random.randint(10, 50)
             for i, (px, py) in enumerate(points):
                 if i < len(points) - 1:
@@ -187,12 +188,12 @@ class RefinedGenerator:
         return image
     
     def _add_gradient_composition(self, image: Image.Image, palette: List[Tuple[int, int, int]]) -> Image.Image:
-        """Создает композицию на основе градиентов."""
-        # Создаем градиентный фон
+        """Create composition based on gradients."""
+        # Create gradient background
         base_color = random.choice(palette)
         target_color = random.choice([c for c in palette if c != base_color])
         
-        # Направление градиента
+        # Gradient direction
         direction = random.choice(['horizontal', 'vertical', 'diagonal', 'radial'])
         
         if direction == 'radial':
@@ -200,7 +201,7 @@ class RefinedGenerator:
         else:
             image = self._create_linear_gradient(image, base_color, target_color, direction)
         
-        # Добавляем геометрические элементы поверх
+        # Add geometric elements on top
         draw = ImageDraw.Draw(image)
         num_elements = random.randint(2, 5)
         
@@ -224,8 +225,8 @@ class RefinedGenerator:
         return image
     
     def _add_hybrid_composition(self, image: Image.Image, palette: List[Tuple[int, int, int]]) -> Image.Image:
-        """Гибридная композиция с элементами разных стилей."""
-        # Начинаем с градиента
+        """Hybrid composition with elements from different styles."""
+        # Start with gradient
         base_color = random.choice(palette)
         target_color = random.choice([c for c in palette if c != base_color])
         image = self._create_radial_gradient(image, base_color, target_color, 
@@ -234,7 +235,7 @@ class RefinedGenerator:
         
         draw = ImageDraw.Draw(image)
         
-        # Добавляем геометрические элементы
+        # Add geometric elements
         for _ in range(random.randint(2, 4)):
             color = random.choice(palette)
             x = random.randint(0, self.width)
@@ -247,7 +248,7 @@ class RefinedGenerator:
                 points = self._generate_polygon_points(x, y, size, random.randint(3, 6))
                 draw.polygon(points, fill=color)
         
-        # Добавляем органические линии
+        # Add organic lines
         for _ in range(random.randint(1, 3)):
             color = random.choice(palette)
             thickness = random.randint(3, 20)
@@ -261,7 +262,7 @@ class RefinedGenerator:
     
     def _create_linear_gradient(self, image: Image.Image, color1: Tuple[int, int, int], 
                                color2: Tuple[int, int, int], direction: str) -> Image.Image:
-        """Создает линейный градиент."""
+        """Create linear gradient."""
         width, height = image.size
         gradient = Image.new('RGB', (width, height))
         
@@ -291,14 +292,14 @@ class RefinedGenerator:
                     b = int(color1[2] * (1 - dist) + color2[2] * dist)
                     gradient.putpixel((x, y), (r, g, b))
         
-        # Накладываем градиент на исходное изображение
+        # Overlay gradient on original image
         return Image.blend(image, gradient, alpha=0.7)
     
     def _create_radial_gradient(self, image: Image.Image, color1: Tuple[int, int, int],
                                color2: Tuple[int, int, int], 
                                center_x: Optional[int] = None,
                                center_y: Optional[int] = None) -> Image.Image:
-        """Создает радиальный градиент."""
+        """Create radial gradient."""
         if center_x is None:
             center_x = self.center_x
         if center_y is None:
@@ -312,7 +313,7 @@ class RefinedGenerator:
             for y in range(height):
                 dist = math.sqrt((x - center_x)**2 + (y - center_y)**2) / max_dist
                 dist = min(dist, 1.0)
-                # Используем квадратичную функцию для более плавного перехода
+                # Use quadratic function for smoother transition
                 dist = dist ** 0.7
                 r = int(color1[0] * (1 - dist) + color2[0] * dist)
                 g = int(color1[1] * (1 - dist) + color2[1] * dist)
@@ -323,7 +324,7 @@ class RefinedGenerator:
     
     def _generate_polygon_points(self, center_x: int, center_y: int, 
                                 radius: int, sides: int) -> List[Tuple[int, int]]:
-        """Генерирует точки для правильного многоугольника."""
+        """Generate points for regular polygon."""
         points = []
         for i in range(sides):
             angle = 2 * math.pi * i / sides
@@ -335,9 +336,9 @@ class RefinedGenerator:
     def _draw_rotated_rectangle(self, draw: ImageDraw.Draw, center_x: int, center_y: int,
                                width: int, height: int, color: Tuple[int, int, int], 
                                angle: float) -> None:
-        """Рисует повернутый прямоугольник."""
-        # Упрощенная версия - рисуем обычный прямоугольник
-        # Для настоящего поворота нужна более сложная логика
+        """Draw rotated rectangle."""
+        # Simplified version - draw regular rectangle
+        # For true rotation, more complex logic is needed
         x1 = center_x - width // 2
         y1 = center_y - height // 2
         x2 = center_x + width // 2
@@ -345,18 +346,17 @@ class RefinedGenerator:
         draw.rectangle([x1, y1, x2, y2], fill=color, outline=color)
     
     def _apply_final_touches(self, image: Image.Image) -> Image.Image:
-        """Применяет финальные эффекты для улучшения качества."""
-        # Легкое повышение контраста
+        """Apply final effects to improve quality."""
+        # Slight contrast increase
         enhancer = ImageEnhance.Contrast(image)
         image = enhancer.enhance(1.1)
         
-        # Легкое повышение насыщенности
+        # Slight saturation increase
         enhancer = ImageEnhance.Color(image)
         image = enhancer.enhance(1.05)
         
-        # Опционально: легкое размытие для смягчения
+        # Optional: slight blur for softening
         if random.random() < 0.3:
             image = image.filter(ImageFilter.GaussianBlur(radius=0.5))
         
         return image
-

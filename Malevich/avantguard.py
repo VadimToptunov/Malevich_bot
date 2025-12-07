@@ -56,10 +56,13 @@ class AvantGuard:
             # Fixed: create proper image for paste operation
             for i in range(self.tech.random_int(MIN_VALUE, height)):
                 color = ImageColor.getrgb(self.random_color())
-                patch_size = random.randint(10, 100)
+                # Fixed: clamp patch_size to fit within image dimensions
+                max_patch_size = min(100, width, height)
+                min_patch_size = min(10, max_patch_size)
+                patch_size = random.randint(min_patch_size, max_patch_size)
                 patch_img = Image.new(color_scheme, (patch_size, patch_size), color)
-                x = self.tech.random_int(MIN_VALUE, width - patch_size)
-                y = self.tech.random_int(MIN_VALUE, height - patch_size)
+                x = self.tech.random_int(MIN_VALUE, max(MIN_VALUE, width - patch_size))
+                y = self.tech.random_int(MIN_VALUE, max(MIN_VALUE, height - patch_size))
                 image.paste(patch_img, (x, y))
 
         for i in range(random.randint(MIN_VALUE, 50)):
@@ -94,13 +97,18 @@ class AvantGuard:
 
     def random_polygon(self, x, y):
         try:
-            # Fixed: limit length to available range
-            max_length = min(500, x - 1, y - 1)
+            # Fixed: limit length to available range, ensuring we don't sample more than available
+            available_x = max(1, x - 1)
+            available_y = max(1, y - 1)
+            max_length = min(500, available_x, available_y)
             if max_length < 2:
-                max_length = 2
+                # If not enough points available, return default polygon
+                return [(x//4, y//4), (3*x//4, y//4), (3*x//4, 3*y//4), (x//4, 3*y//4)]
             length = random.randint(2, max_length)
-            polygon_x = random.sample(range(1, x), length)
-            polygon_y = random.sample(range(1, y), length)
+            # Ensure we don't try to sample more than available
+            actual_length = min(length, available_x, available_y)
+            polygon_x = random.sample(range(1, x), actual_length)
+            polygon_y = random.sample(range(1, y), actual_length)
             return polygon_x + polygon_y
         except Exception as error:
             print(f"Error generating polygon: {error}")

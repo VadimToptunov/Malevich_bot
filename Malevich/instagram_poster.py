@@ -170,10 +170,49 @@ class InstagramPoster:
 class InstagramImagePreparer:
     """Utility for preparing images without Instagram authentication."""
     
+    # Recommended sizes for Instagram (duplicated to avoid dependency on InstagramPoster)
+    INSTAGRAM_SIZES = {
+        'square': (1080, 1080),      # Square
+        'portrait': (1080, 1350),    # Vertical (4:5)
+        'landscape': (1080, 566),    # Horizontal (1.91:1)
+        'story': (1080, 1920),       # Stories (9:16)
+    }
+    
     def __init__(self):
-        self.sizes = InstagramPoster.INSTAGRAM_SIZES
+        self.sizes = self.INSTAGRAM_SIZES
     
     def prepare(self, image_path: str, format: str = 'square') -> str:
-        """Prepare image for Instagram."""
-        poster = InstagramPoster()
-        return poster.prepare_image_for_instagram(image_path, format)
+        """
+        Prepare image for Instagram without requiring instagrapi library.
+        
+        Args:
+            image_path: Path to source image
+            format: Format ('square', 'portrait', 'landscape', 'story')
+            
+        Returns:
+            Path to prepared image
+        """
+        if format not in self.INSTAGRAM_SIZES:
+            raise ValueError(f"Unknown format: {format}")
+        
+        target_size = self.INSTAGRAM_SIZES[format]
+        
+        # Open image
+        image = Image.open(image_path)
+        
+        # Resize with aspect ratio preservation and centering
+        image.thumbnail(target_size, Image.Resampling.LANCZOS)
+        
+        # Create new image with target size
+        new_image = Image.new('RGB', target_size, (255, 255, 255))
+        
+        # Paste image centered
+        x = (target_size[0] - image.size[0]) // 2
+        y = (target_size[1] - image.size[1]) // 2
+        new_image.paste(image, (x, y))
+        
+        # Save prepared image
+        output_path = image_path.replace('.jpg', f'_instagram_{format}.jpg')
+        new_image.save(output_path, 'JPEG', quality=95)
+        
+        return output_path
