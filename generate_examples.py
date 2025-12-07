@@ -4,7 +4,7 @@ All documentation in English.
 """
 import logging
 from pathlib import Path
-from Malevich.advanced_generator import AdvancedGenerator
+from Malevich.master_generator import MasterGenerator
 
 # Configure logging
 logging.basicConfig(
@@ -17,13 +17,16 @@ logger = logging.getLogger(__name__)
 OUTPUT_DIR = Path('examples')
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-# All available styles
-STYLES = ['cubism', 'expressionism', 'surrealism', 'fragmented', 'intense', 'hybrid']
+# All available styles based on famous artists
+STYLES = [
+    'renaissance', 'baroque', 'impressionist', 'post_impressionist',
+    'cubist', 'surrealist', 'suprematist', 'abstract_expressionist', 'expressionist'
+]
 
 
 def generate_all_examples():
     """Generate example images for all art styles."""
-    generator = AdvancedGenerator(width=1080, height=1080)
+    generator = MasterGenerator(width=1080, height=1080)
     
     logger.info("Starting generation of example images for all styles...")
     
