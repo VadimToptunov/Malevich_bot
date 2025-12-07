@@ -7,7 +7,7 @@ from PIL import ImageDraw
 from Malevich.tech import Tech
 
 color_scheme = "RGB"
-min = 0
+MIN_VALUE = 0  # Fixed: avoid shadowing built-in min()
 
 
 class AvantGuard:
@@ -53,13 +53,16 @@ class AvantGuard:
         image = Image.new(color_scheme, (width, height), self.random_color())
         draw = ImageDraw.Draw(image)
         if patch is True:
-            for i in range(self.tech.random_int(min, height)):
-                image.paste((self.random_color()), (
-                    self.tech.random_int(min, width), self.tech.random_int(min, height),
-                    self.tech.random_int(min, width),
-                    self.tech.random_int(min, height)))
+            # Fixed: create proper image for paste operation
+            for i in range(self.tech.random_int(MIN_VALUE, height)):
+                color = ImageColor.getrgb(self.random_color())
+                patch_size = random.randint(10, 100)
+                patch_img = Image.new(color_scheme, (patch_size, patch_size), color)
+                x = self.tech.random_int(MIN_VALUE, width - patch_size)
+                y = self.tech.random_int(MIN_VALUE, height - patch_size)
+                image.paste(patch_img, (x, y))
 
-        for i in range(random.randint(min, 50)):
+        for i in range(random.randint(MIN_VALUE, 50)):
             if lines is True:
                 draw.line(self.random_parameters(height), fill=ImageColor.getrgb(self.random_color()))
             else:
@@ -69,13 +72,13 @@ class AvantGuard:
             else:
                 pass
 
-        for j in range(random.randint(min, 5)):
-            if eclipse is True:
+        for j in range(random.randint(MIN_VALUE, 5)):
+            if eclipse is True:  # Note: parameter name is 'eclipse' but should be 'ellipse'
                 draw.ellipse(self.random_parameters(width), fill=ImageColor.getcolor(self.random_color(), color_scheme))
             else:
                 pass
 
-        for x in range(random.randint(min, 10)):
+        for x in range(random.randint(MIN_VALUE, 10)):
             if rectangle is True:
                 draw.rectangle(self.random_parameters(width),
                                fill=ImageColor.getcolor(self.random_color(), color_scheme))
@@ -86,18 +89,23 @@ class AvantGuard:
         return image_file
 
     def random_parameters(self, upper_range):
-        return (random.randint(min, upper_range), random.randint(min, upper_range),
-                random.randint(min, upper_range), random.randint(min, upper_range))
+        return (random.randint(MIN_VALUE, upper_range), random.randint(MIN_VALUE, upper_range),
+                random.randint(MIN_VALUE, upper_range), random.randint(MIN_VALUE, upper_range))
 
     def random_polygon(self, x, y):
         try:
-            length = random.randint(2, 500)
+            # Fixed: limit length to available range
+            max_length = min(500, x - 1, y - 1)
+            if max_length < 2:
+                max_length = 2
+            length = random.randint(2, max_length)
             polygon_x = random.sample(range(1, x), length)
             polygon_y = random.sample(range(1, y), length)
             return polygon_x + polygon_y
         except Exception as error:
-            print(error)
-            pass
+            print(f"Error generating polygon: {error}")
+            # Return default polygon if error
+            return [(x//4, y//4), (3*x//4, y//4), (3*x//4, 3*y//4), (x//4, 3*y//4)]
 
     def random_color(self):
         return random.choice(self.random_palette())

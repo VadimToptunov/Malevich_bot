@@ -4,9 +4,9 @@ import pathlib
 import random
 import string
 
-min = 0
-col_max = 256
-name_length = 16
+MIN_VALUE = 0  # Fixed: avoid shadowing built-in min()
+COL_MAX = 256
+NAME_LENGTH = 16
 
 
 class Tech:
@@ -15,15 +15,19 @@ class Tech:
         return random.randint(min, max)
 
     def random_color(self):
-        return random.randint(min, col_max), random.randint(min, col_max), random.randint(min, col_max)
+        return random.randint(MIN_VALUE, COL_MAX), random.randint(MIN_VALUE, COL_MAX), random.randint(MIN_VALUE, COL_MAX)
 
     def create_random_filename(self):
-        directory = f"../masterpieces/{date.today()}/{datetime.now().time().hour}/"
-        filename = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(name_length)) + ".jpg"
-        if not pathlib.Path(directory).exists():
-            pathlib.Path(directory).mkdir(parents=True)
-        else:
-            pass
-        filepath = f"{directory}{filename}"
-        text = f"File: {filepath}"
-        return filepath
+        # Fixed: use absolute path and better error handling
+        base_dir = pathlib.Path(__file__).parent.parent
+        directory = base_dir / "masterpieces" / str(date.today()) / str(datetime.now().time().hour)
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            print(f"Error creating directory: {e}")
+            # Fallback to current directory
+            directory = pathlib.Path(".")
+        
+        filename = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(NAME_LENGTH)) + ".jpg"
+        filepath = directory / filename
+        return str(filepath)

@@ -18,4 +18,5 @@ def generate_image():
 
 if __name__ == "__main__":
     for i in range(10):
-        random.choice([generate_image(), magnet.creaate_image()])
+        # Fix: choose function, not result
+        random.choice([generate_image, magnet.create_image])()
