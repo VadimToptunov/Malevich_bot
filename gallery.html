@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Gallery - Generated Images</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .gallery-item {
+            position: relative;
+            background: #2a2a2a;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .gallery-item .caption {
+            padding: 10px;
+            font-size: 0.9em;
+            text-align: center;
+            color: #ccc;
+        }
+        
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .lightbox.active {
+            display: flex;
+        }
+        
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        
+        .lightbox .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: #fff;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
+        .lightbox .close:hover {
+            color: #ff6b6b;
+        }
+        
+        .filter {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .filter button {
+            background: #3a3a3a;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .filter button:hover,
+        .filter button.active {
+            background: #5a5a5a;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 Art Gallery</h1>
+        <p>Generated Images Collection</p>
+    </div>
+    
+    <div class="filter">
+        <button onclick="filterImages('all')" class="active">All</button>
+        <button onclick="filterImages('comprehensive')">Comprehensive</button>
+        <button onclick="filterImages('interdisciplinary')">Interdisciplinary</button>
+    </div>
+    
+    <div class="gallery" id="gallery"></div>
+    
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="close">&times;</span>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+    
+    <script>
+        const images = [
+    {path: 'examples/avantguard_01.jpg', name: 'Avantguard 01', category: 'legacy'},
+    {path: 'examples/avantguard_02.jpg', name: 'Avantguard 02', category: 'legacy'},
+    {path: 'examples/avantguard_03.jpg', name: 'Avantguard 03', category: 'legacy'},
+    {path: 'examples/avantguard_04.jpg', name: 'Avantguard 04', category: 'legacy'},
+    {path: 'examples/avantguard_05.jpg', name: 'Avantguard 05', category: 'legacy'},
+    {path: 'examples/avantguard_06.jpg', name: 'Avantguard 06', category: 'legacy'},
+    {path: 'examples/avantguard_07.jpg', name: 'Avantguard 07', category: 'legacy'},
+    {path: 'examples/avantguard_08.jpg', name: 'Avantguard 08', category: 'legacy'},
+    {path: 'examples/avantguard_09.jpg', name: 'Avantguard 09', category: 'legacy'},
+    {path: 'examples/avantguard_10.jpg', name: 'Avantguard 10', category: 'legacy'},
+    {path: 'examples/avantguard_11.jpg', name: 'Avantguard 11', category: 'legacy'},
+    {path: 'examples/avantguard_12.jpg', name: 'Avantguard 12', category: 'legacy'},
+    {path: 'examples/avantguard_13.jpg', name: 'Avantguard 13', category: 'legacy'},
+    {path: 'examples/avantguard_14.jpg', name: 'Avantguard 14', category: 'legacy'},
+    {path: 'examples/avantguard_15.jpg', name: 'Avantguard 15', category: 'legacy'},
+    {path: 'examples/avantguard_16.jpg', name: 'Avantguard 16', category: 'legacy'},
+    {path: 'examples/avantguard_17.jpg', name: 'Avantguard 17', category: 'legacy'},
+    {path: 'examples/avantguard_18.jpg', name: 'Avantguard 18', category: 'legacy'},
+    {path: 'examples/avantguard_19.jpg', name: 'Avantguard 19', category: 'legacy'},
+    {path: 'examples/avantguard_20.jpg', name: 'Avantguard 20', category: 'legacy'},
+    {path: 'examples/comprehensive_animal_classicism.jpg', name: 'Comprehensive Animal Classicism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_animal_fauvism.jpg', name: 'Comprehensive Animal Fauvism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_animal_hyperrealism.jpg', name: 'Comprehensive Animal Hyperrealism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_animal_impressionism.jpg', name: 'Comprehensive Animal Impressionism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_animal_naturalism.jpg', name: 'Comprehensive Animal Naturalism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_animal_pop_art.jpg', name: 'Comprehensive Animal Pop Art', category: 'comprehensive'},
+    {path: 'examples/comprehensive_animal_realism.jpg', name: 'Comprehensive Animal Realism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_animal_romanticism.jpg', name: 'Comprehensive Animal Romanticism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_deco_01.jpg', name: 'Comprehensive Art Deco 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_deco_02.jpg', name: 'Comprehensive Art Deco 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_deco_03.jpg', name: 'Comprehensive Art Deco 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_deco_04.jpg', name: 'Comprehensive Art Deco 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_deco_05.jpg', name: 'Comprehensive Art Deco 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_deco_06.jpg', name: 'Comprehensive Art Deco 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_deco_07.jpg', name: 'Comprehensive Art Deco 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_deco_08.jpg', name: 'Comprehensive Art Deco 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_deco_09.jpg', name: 'Comprehensive Art Deco 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_deco_10.jpg', name: 'Comprehensive Art Deco 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_nouveau_01.jpg', name: 'Comprehensive Art Nouveau 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_nouveau_02.jpg', name: 'Comprehensive Art Nouveau 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_nouveau_03.jpg', name: 'Comprehensive Art Nouveau 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_nouveau_04.jpg', name: 'Comprehensive Art Nouveau 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_nouveau_05.jpg', name: 'Comprehensive Art Nouveau 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_nouveau_06.jpg', name: 'Comprehensive Art Nouveau 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_nouveau_07.jpg', name: 'Comprehensive Art Nouveau 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_nouveau_08.jpg', name: 'Comprehensive Art Nouveau 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_nouveau_09.jpg', name: 'Comprehensive Art Nouveau 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_art_nouveau_10.jpg', name: 'Comprehensive Art Nouveau 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_classicism_01.jpg', name: 'Comprehensive Classicism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_classicism_02.jpg', name: 'Comprehensive Classicism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_classicism_03.jpg', name: 'Comprehensive Classicism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_classicism_04.jpg', name: 'Comprehensive Classicism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_classicism_05.jpg', name: 'Comprehensive Classicism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_classicism_06.jpg', name: 'Comprehensive Classicism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_classicism_07.jpg', name: 'Comprehensive Classicism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_classicism_08.jpg', name: 'Comprehensive Classicism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_classicism_09.jpg', name: 'Comprehensive Classicism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_classicism_10.jpg', name: 'Comprehensive Classicism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_constructivism_01.jpg', name: 'Comprehensive Constructivism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_constructivism_02.jpg', name: 'Comprehensive Constructivism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_constructivism_03.jpg', name: 'Comprehensive Constructivism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_constructivism_04.jpg', name: 'Comprehensive Constructivism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_constructivism_05.jpg', name: 'Comprehensive Constructivism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_constructivism_06.jpg', name: 'Comprehensive Constructivism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_constructivism_07.jpg', name: 'Comprehensive Constructivism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_constructivism_08.jpg', name: 'Comprehensive Constructivism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_constructivism_09.jpg', name: 'Comprehensive Constructivism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_constructivism_10.jpg', name: 'Comprehensive Constructivism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_dadaism_01.jpg', name: 'Comprehensive Dadaism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_dadaism_02.jpg', name: 'Comprehensive Dadaism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_dadaism_03.jpg', name: 'Comprehensive Dadaism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_dadaism_04.jpg', name: 'Comprehensive Dadaism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_dadaism_05.jpg', name: 'Comprehensive Dadaism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_dadaism_06.jpg', name: 'Comprehensive Dadaism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_dadaism_07.jpg', name: 'Comprehensive Dadaism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_dadaism_08.jpg', name: 'Comprehensive Dadaism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_dadaism_09.jpg', name: 'Comprehensive Dadaism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_dadaism_10.jpg', name: 'Comprehensive Dadaism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_de_stijl_01.jpg', name: 'Comprehensive De Stijl 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_de_stijl_02.jpg', name: 'Comprehensive De Stijl 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_de_stijl_03.jpg', name: 'Comprehensive De Stijl 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_de_stijl_04.jpg', name: 'Comprehensive De Stijl 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_de_stijl_05.jpg', name: 'Comprehensive De Stijl 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_de_stijl_06.jpg', name: 'Comprehensive De Stijl 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_de_stijl_07.jpg', name: 'Comprehensive De Stijl 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_de_stijl_08.jpg', name: 'Comprehensive De Stijl 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_de_stijl_09.jpg', name: 'Comprehensive De Stijl 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_de_stijl_10.jpg', name: 'Comprehensive De Stijl 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_fauvism_01.jpg', name: 'Comprehensive Fauvism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_fauvism_02.jpg', name: 'Comprehensive Fauvism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_fauvism_03.jpg', name: 'Comprehensive Fauvism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_fauvism_04.jpg', name: 'Comprehensive Fauvism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_fauvism_05.jpg', name: 'Comprehensive Fauvism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_fauvism_06.jpg', name: 'Comprehensive Fauvism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_fauvism_07.jpg', name: 'Comprehensive Fauvism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_fauvism_08.jpg', name: 'Comprehensive Fauvism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_fauvism_09.jpg', name: 'Comprehensive Fauvism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_fauvism_10.jpg', name: 'Comprehensive Fauvism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_futurism_01.jpg', name: 'Comprehensive Futurism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_futurism_02.jpg', name: 'Comprehensive Futurism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_futurism_03.jpg', name: 'Comprehensive Futurism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_futurism_04.jpg', name: 'Comprehensive Futurism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_futurism_05.jpg', name: 'Comprehensive Futurism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_futurism_06.jpg', name: 'Comprehensive Futurism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_futurism_07.jpg', name: 'Comprehensive Futurism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_futurism_08.jpg', name: 'Comprehensive Futurism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_futurism_09.jpg', name: 'Comprehensive Futurism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_futurism_10.jpg', name: 'Comprehensive Futurism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_hyperrealism_01.jpg', name: 'Comprehensive Hyperrealism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_hyperrealism_02.jpg', name: 'Comprehensive Hyperrealism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_hyperrealism_03.jpg', name: 'Comprehensive Hyperrealism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_hyperrealism_04.jpg', name: 'Comprehensive Hyperrealism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_hyperrealism_05.jpg', name: 'Comprehensive Hyperrealism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_hyperrealism_06.jpg', name: 'Comprehensive Hyperrealism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_hyperrealism_07.jpg', name: 'Comprehensive Hyperrealism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_hyperrealism_08.jpg', name: 'Comprehensive Hyperrealism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_hyperrealism_09.jpg', name: 'Comprehensive Hyperrealism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_hyperrealism_10.jpg', name: 'Comprehensive Hyperrealism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_interior_classicism.jpg', name: 'Comprehensive Interior Classicism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_interior_fauvism.jpg', name: 'Comprehensive Interior Fauvism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_interior_hyperrealism.jpg', name: 'Comprehensive Interior Hyperrealism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_interior_impressionism.jpg', name: 'Comprehensive Interior Impressionism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_interior_naturalism.jpg', name: 'Comprehensive Interior Naturalism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_interior_pop_art.jpg', name: 'Comprehensive Interior Pop Art', category: 'comprehensive'},
+    {path: 'examples/comprehensive_interior_realism.jpg', name: 'Comprehensive Interior Realism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_interior_romanticism.jpg', name: 'Comprehensive Interior Romanticism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_landscape_classicism.jpg', name: 'Comprehensive Landscape Classicism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_landscape_fauvism.jpg', name: 'Comprehensive Landscape Fauvism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_landscape_hyperrealism.jpg', name: 'Comprehensive Landscape Hyperrealism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_landscape_impressionism.jpg', name: 'Comprehensive Landscape Impressionism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_landscape_naturalism.jpg', name: 'Comprehensive Landscape Naturalism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_landscape_pop_art.jpg', name: 'Comprehensive Landscape Pop Art', category: 'comprehensive'},
+    {path: 'examples/comprehensive_landscape_realism.jpg', name: 'Comprehensive Landscape Realism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_landscape_romanticism.jpg', name: 'Comprehensive Landscape Romanticism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_mannerism_01.jpg', name: 'Comprehensive Mannerism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_mannerism_02.jpg', name: 'Comprehensive Mannerism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_mannerism_03.jpg', name: 'Comprehensive Mannerism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_mannerism_04.jpg', name: 'Comprehensive Mannerism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_mannerism_05.jpg', name: 'Comprehensive Mannerism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_mannerism_06.jpg', name: 'Comprehensive Mannerism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_mannerism_07.jpg', name: 'Comprehensive Mannerism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_mannerism_08.jpg', name: 'Comprehensive Mannerism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_mannerism_09.jpg', name: 'Comprehensive Mannerism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_mannerism_10.jpg', name: 'Comprehensive Mannerism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_minimalism_01.jpg', name: 'Comprehensive Minimalism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_minimalism_02.jpg', name: 'Comprehensive Minimalism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_minimalism_03.jpg', name: 'Comprehensive Minimalism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_minimalism_04.jpg', name: 'Comprehensive Minimalism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_minimalism_05.jpg', name: 'Comprehensive Minimalism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_minimalism_06.jpg', name: 'Comprehensive Minimalism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_minimalism_07.jpg', name: 'Comprehensive Minimalism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_minimalism_08.jpg', name: 'Comprehensive Minimalism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_minimalism_09.jpg', name: 'Comprehensive Minimalism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_minimalism_10.jpg', name: 'Comprehensive Minimalism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_naturalism_01.jpg', name: 'Comprehensive Naturalism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_naturalism_02.jpg', name: 'Comprehensive Naturalism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_naturalism_03.jpg', name: 'Comprehensive Naturalism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_naturalism_04.jpg', name: 'Comprehensive Naturalism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_naturalism_05.jpg', name: 'Comprehensive Naturalism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_naturalism_06.jpg', name: 'Comprehensive Naturalism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_naturalism_07.jpg', name: 'Comprehensive Naturalism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_naturalism_08.jpg', name: 'Comprehensive Naturalism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_naturalism_09.jpg', name: 'Comprehensive Naturalism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_naturalism_10.jpg', name: 'Comprehensive Naturalism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_neoclassicism_01.jpg', name: 'Comprehensive Neoclassicism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_neoclassicism_02.jpg', name: 'Comprehensive Neoclassicism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_neoclassicism_03.jpg', name: 'Comprehensive Neoclassicism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_neoclassicism_04.jpg', name: 'Comprehensive Neoclassicism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_neoclassicism_05.jpg', name: 'Comprehensive Neoclassicism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_neoclassicism_06.jpg', name: 'Comprehensive Neoclassicism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_neoclassicism_07.jpg', name: 'Comprehensive Neoclassicism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_neoclassicism_08.jpg', name: 'Comprehensive Neoclassicism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_neoclassicism_09.jpg', name: 'Comprehensive Neoclassicism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_neoclassicism_10.jpg', name: 'Comprehensive Neoclassicism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_op_art_01.jpg', name: 'Comprehensive Op Art 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_op_art_02.jpg', name: 'Comprehensive Op Art 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_op_art_03.jpg', name: 'Comprehensive Op Art 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_op_art_04.jpg', name: 'Comprehensive Op Art 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_op_art_05.jpg', name: 'Comprehensive Op Art 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_op_art_06.jpg', name: 'Comprehensive Op Art 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_op_art_07.jpg', name: 'Comprehensive Op Art 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_op_art_08.jpg', name: 'Comprehensive Op Art 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_op_art_09.jpg', name: 'Comprehensive Op Art 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_op_art_10.jpg', name: 'Comprehensive Op Art 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_photorealism_01.jpg', name: 'Comprehensive Photorealism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_photorealism_02.jpg', name: 'Comprehensive Photorealism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_photorealism_03.jpg', name: 'Comprehensive Photorealism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_photorealism_04.jpg', name: 'Comprehensive Photorealism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_photorealism_05.jpg', name: 'Comprehensive Photorealism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_photorealism_06.jpg', name: 'Comprehensive Photorealism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_photorealism_07.jpg', name: 'Comprehensive Photorealism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_photorealism_08.jpg', name: 'Comprehensive Photorealism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_photorealism_09.jpg', name: 'Comprehensive Photorealism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_photorealism_10.jpg', name: 'Comprehensive Photorealism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_pop_art_01.jpg', name: 'Comprehensive Pop Art 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_pop_art_02.jpg', name: 'Comprehensive Pop Art 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_pop_art_03.jpg', name: 'Comprehensive Pop Art 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_pop_art_04.jpg', name: 'Comprehensive Pop Art 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_pop_art_05.jpg', name: 'Comprehensive Pop Art 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_pop_art_06.jpg', name: 'Comprehensive Pop Art 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_pop_art_07.jpg', name: 'Comprehensive Pop Art 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_pop_art_08.jpg', name: 'Comprehensive Pop Art 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_pop_art_09.jpg', name: 'Comprehensive Pop Art 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_pop_art_10.jpg', name: 'Comprehensive Pop Art 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_portrait_classicism.jpg', name: 'Comprehensive Portrait Classicism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_portrait_fauvism.jpg', name: 'Comprehensive Portrait Fauvism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_portrait_hyperrealism.jpg', name: 'Comprehensive Portrait Hyperrealism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_portrait_impressionism.jpg', name: 'Comprehensive Portrait Impressionism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_portrait_naturalism.jpg', name: 'Comprehensive Portrait Naturalism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_portrait_pop_art.jpg', name: 'Comprehensive Portrait Pop Art', category: 'comprehensive'},
+    {path: 'examples/comprehensive_portrait_realism.jpg', name: 'Comprehensive Portrait Realism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_portrait_romanticism.jpg', name: 'Comprehensive Portrait Romanticism', category: 'comprehensive'},
+    {path: 'examples/comprehensive_precisionism_01.jpg', name: 'Comprehensive Precisionism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_precisionism_02.jpg', name: 'Comprehensive Precisionism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_precisionism_03.jpg', name: 'Comprehensive Precisionism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_precisionism_04.jpg', name: 'Comprehensive Precisionism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_precisionism_05.jpg', name: 'Comprehensive Precisionism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_precisionism_06.jpg', name: 'Comprehensive Precisionism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_precisionism_07.jpg', name: 'Comprehensive Precisionism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_precisionism_08.jpg', name: 'Comprehensive Precisionism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_precisionism_09.jpg', name: 'Comprehensive Precisionism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_precisionism_10.jpg', name: 'Comprehensive Precisionism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_realism_01.jpg', name: 'Comprehensive Realism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_realism_02.jpg', name: 'Comprehensive Realism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_realism_03.jpg', name: 'Comprehensive Realism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_realism_04.jpg', name: 'Comprehensive Realism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_realism_05.jpg', name: 'Comprehensive Realism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_realism_06.jpg', name: 'Comprehensive Realism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_realism_07.jpg', name: 'Comprehensive Realism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_realism_08.jpg', name: 'Comprehensive Realism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_realism_09.jpg', name: 'Comprehensive Realism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_realism_10.jpg', name: 'Comprehensive Realism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_rococo_01.jpg', name: 'Comprehensive Rococo 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_rococo_02.jpg', name: 'Comprehensive Rococo 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_rococo_03.jpg', name: 'Comprehensive Rococo 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_rococo_04.jpg', name: 'Comprehensive Rococo 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_rococo_05.jpg', name: 'Comprehensive Rococo 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_rococo_06.jpg', name: 'Comprehensive Rococo 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_rococo_07.jpg', name: 'Comprehensive Rococo 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_rococo_08.jpg', name: 'Comprehensive Rococo 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_rococo_09.jpg', name: 'Comprehensive Rococo 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_rococo_10.jpg', name: 'Comprehensive Rococo 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_romanticism_01.jpg', name: 'Comprehensive Romanticism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_romanticism_02.jpg', name: 'Comprehensive Romanticism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_romanticism_03.jpg', name: 'Comprehensive Romanticism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_romanticism_04.jpg', name: 'Comprehensive Romanticism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_romanticism_05.jpg', name: 'Comprehensive Romanticism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_romanticism_06.jpg', name: 'Comprehensive Romanticism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_romanticism_07.jpg', name: 'Comprehensive Romanticism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_romanticism_08.jpg', name: 'Comprehensive Romanticism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_romanticism_09.jpg', name: 'Comprehensive Romanticism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_romanticism_10.jpg', name: 'Comprehensive Romanticism 10', category: 'comprehensive'},
+    {path: 'examples/comprehensive_symbolism_01.jpg', name: 'Comprehensive Symbolism 01', category: 'comprehensive'},
+    {path: 'examples/comprehensive_symbolism_02.jpg', name: 'Comprehensive Symbolism 02', category: 'comprehensive'},
+    {path: 'examples/comprehensive_symbolism_03.jpg', name: 'Comprehensive Symbolism 03', category: 'comprehensive'},
+    {path: 'examples/comprehensive_symbolism_04.jpg', name: 'Comprehensive Symbolism 04', category: 'comprehensive'},
+    {path: 'examples/comprehensive_symbolism_05.jpg', name: 'Comprehensive Symbolism 05', category: 'comprehensive'},
+    {path: 'examples/comprehensive_symbolism_06.jpg', name: 'Comprehensive Symbolism 06', category: 'comprehensive'},
+    {path: 'examples/comprehensive_symbolism_07.jpg', name: 'Comprehensive Symbolism 07', category: 'comprehensive'},
+    {path: 'examples/comprehensive_symbolism_08.jpg', name: 'Comprehensive Symbolism 08', category: 'comprehensive'},
+    {path: 'examples/comprehensive_symbolism_09.jpg', name: 'Comprehensive Symbolism 09', category: 'comprehensive'},
+    {path: 'examples/comprehensive_symbolism_10.jpg', name: 'Comprehensive Symbolism 10', category: 'comprehensive'},
+    {path: 'examples/interdisciplinary_001.jpg', name: 'Interdisciplinary 001', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_002.jpg', name: 'Interdisciplinary 002', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_003.jpg', name: 'Interdisciplinary 003', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_004.jpg', name: 'Interdisciplinary 004', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_005.jpg', name: 'Interdisciplinary 005', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_006.jpg', name: 'Interdisciplinary 006', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_007.jpg', name: 'Interdisciplinary 007', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_008.jpg', name: 'Interdisciplinary 008', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_009.jpg', name: 'Interdisciplinary 009', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_010.jpg', name: 'Interdisciplinary 010', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_011.jpg', name: 'Interdisciplinary 011', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_012.jpg', name: 'Interdisciplinary 012', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_013.jpg', name: 'Interdisciplinary 013', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_014.jpg', name: 'Interdisciplinary 014', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_015.jpg', name: 'Interdisciplinary 015', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_016.jpg', name: 'Interdisciplinary 016', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_017.jpg', name: 'Interdisciplinary 017', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_018.jpg', name: 'Interdisciplinary 018', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_019.jpg', name: 'Interdisciplinary 019', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_020.jpg', name: 'Interdisciplinary 020', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_021.jpg', name: 'Interdisciplinary 021', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_022.jpg', name: 'Interdisciplinary 022', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_023.jpg', name: 'Interdisciplinary 023', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_024.jpg', name: 'Interdisciplinary 024', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_025.jpg', name: 'Interdisciplinary 025', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_026.jpg', name: 'Interdisciplinary 026', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_027.jpg', name: 'Interdisciplinary 027', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_028.jpg', name: 'Interdisciplinary 028', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_029.jpg', name: 'Interdisciplinary 029', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_030.jpg', name: 'Interdisciplinary 030', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_031.jpg', name: 'Interdisciplinary 031', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_032.jpg', name: 'Interdisciplinary 032', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_033.jpg', name: 'Interdisciplinary 033', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_034.jpg', name: 'Interdisciplinary 034', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_035.jpg', name: 'Interdisciplinary 035', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_036.jpg', name: 'Interdisciplinary 036', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_037.jpg', name: 'Interdisciplinary 037', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_038.jpg', name: 'Interdisciplinary 038', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_039.jpg', name: 'Interdisciplinary 039', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_040.jpg', name: 'Interdisciplinary 040', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_041.jpg', name: 'Interdisciplinary 041', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_042.jpg', name: 'Interdisciplinary 042', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_043.jpg', name: 'Interdisciplinary 043', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_044.jpg', name: 'Interdisciplinary 044', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_045.jpg', name: 'Interdisciplinary 045', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_046.jpg', name: 'Interdisciplinary 046', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_047.jpg', name: 'Interdisciplinary 047', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_048.jpg', name: 'Interdisciplinary 048', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_049.jpg', name: 'Interdisciplinary 049', category: 'interdisciplinary'},
+    {path: 'examples/interdisciplinary_050.jpg', name: 'Interdisciplinary 050', category: 'interdisciplinary'},
+    {path: 'examples/magnet_01.jpg', name: 'Magnet 01', category: 'legacy'},
+    {path: 'examples/magnet_02.jpg', name: 'Magnet 02', category: 'legacy'},
+    {path: 'examples/magnet_03.jpg', name: 'Magnet 03', category: 'legacy'},
+    {path: 'examples/magnet_04.jpg', name: 'Magnet 04', category: 'legacy'},
+    {path: 'examples/magnet_05.jpg', name: 'Magnet 05', category: 'legacy'},
+    {path: 'examples/magnet_06.jpg', name: 'Magnet 06', category: 'legacy'},
+    {path: 'examples/magnet_07.jpg', name: 'Magnet 07', category: 'legacy'},
+    {path: 'examples/magnet_08.jpg', name: 'Magnet 08', category: 'legacy'},
+    {path: 'examples/magnet_09.jpg', name: 'Magnet 09', category: 'legacy'},
+    {path: 'examples/magnet_10.jpg', name: 'Magnet 10', category: 'legacy'},
+    {path: 'examples/magnet_11.jpg', name: 'Magnet 11', category: 'legacy'},
+    {path: 'examples/magnet_12.jpg', name: 'Magnet 12', category: 'legacy'},
+    {path: 'examples/magnet_13.jpg', name: 'Magnet 13', category: 'legacy'},
+    {path: 'examples/magnet_14.jpg', name: 'Magnet 14', category: 'legacy'},
+    {path: 'examples/magnet_15.jpg', name: 'Magnet 15', category: 'legacy'},
+    {path: 'examples/magnet_16.jpg', name: 'Magnet 16', category: 'legacy'},
+    {path: 'examples/magnet_17.jpg', name: 'Magnet 17', category: 'legacy'},
+    {path: 'examples/magnet_18.jpg', name: 'Magnet 18', category: 'legacy'},
+    {path: 'examples/magnet_19.jpg', name: 'Magnet 19', category: 'legacy'},
+    {path: 'examples/magnet_20.jpg', name: 'Magnet 20', category: 'legacy'},
+];
+
+        
+        function loadImages() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+            
+            images.forEach((img, index) => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.dataset.category = img.category;
+                item.onclick = () => openLightbox(index);
+                
+                const imgEl = document.createElement('img');
+                imgEl.src = img.path;
+                imgEl.alt = img.name;
+                imgEl.loading = 'lazy';
+                
+                const caption = document.createElement('div');
+                caption.className = 'caption';
+                caption.textContent = img.name;
+                
+                item.appendChild(imgEl);
+                item.appendChild(caption);
+                gallery.appendChild(item);
+            });
+        }
+        
+        function filterImages(category) {
+            const items = document.querySelectorAll('.gallery-item');
+            const buttons = document.querySelectorAll('.filter button');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        function openLightbox(index) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = images[index].path;
+            lightbox.classList.add('active');
+        }
+        
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+        }
+        
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+        
+        // Load images when page loads
+        loadImages();
+    </script>
+</body>
+</html>
+

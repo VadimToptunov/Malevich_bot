@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Gallery - Generated Images</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .gallery-item {
+            position: relative;
+            background: #2a2a2a;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .gallery-item .caption {
+            padding: 10px;
+            font-size: 0.9em;
+            text-align: center;
+            color: #ccc;
+        }
+        
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .lightbox.active {
+            display: flex;
+        }
+        
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        
+        .lightbox .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: #fff;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
+        .lightbox .close:hover {
+            color: #ff6b6b;
+        }
+        
+        .filter {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .filter button {
+            background: #3a3a3a;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .filter button:hover,
+        .filter button.active {
+            background: #5a5a5a;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 Art Gallery</h1>
+        <p>Generated Images Collection</p>
+    </div>
+    
+    <div class="filter">
+        <button onclick="filterImages('all')" class="active">All</button>
+        <button onclick="filterImages('comprehensive')">Comprehensive</button>
+        <button onclick="filterImages('interdisciplinary')">Interdisciplinary</button>
+    </div>
+    
+    <div class="gallery" id="gallery"></div>
+    
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="close">&times;</span>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+    
+    <script>
+        // Image data will be inserted here
+        const images = [];
+        
+        function loadImages() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+            
+            images.forEach((img, index) => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.dataset.category = img.category;
+                item.onclick = () => openLightbox(index);
+                
+                const imgEl = document.createElement('img');
+                imgEl.src = img.path;
+                imgEl.alt = img.name;
+                imgEl.loading = 'lazy';
+                
+                const caption = document.createElement('div');
+                caption.className = 'caption';
+                caption.textContent = img.name;
+                
+                item.appendChild(imgEl);
+                item.appendChild(caption);
+                gallery.appendChild(item);
+            });
+        }
+        
+        function filterImages(category) {
+            const items = document.querySelectorAll('.gallery-item');
+            const buttons = document.querySelectorAll('.filter button');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        function openLightbox(index) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = images[index].path;
+            lightbox.classList.add('active');
+        }
+        
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+        }
+        
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+        
+        // Load images when page loads
+        loadImages();
+    </script>
+</body>
+</html>
+

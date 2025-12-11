@@ -27,17 +27,19 @@ COMPREHENSIVE_STYLES = [
 ]
 
 
-def generate_comprehensive_examples(output_dir: Path, count_per_style: int = 3):
-    """Generate examples using ComprehensiveStyleGenerator."""
+def generate_comprehensive_examples(output_dir: Path, count_per_style: int = 3, creative: bool = True,
+                                   include_subjects: bool = True):
+    """Generate examples using ComprehensiveStyleGenerator with creative enhancements."""
     generator = ComprehensiveStyleGenerator(width=1080, height=1080)
     
-    logger.info(f"Generating comprehensive style examples...")
+    logger.info(f"Generating comprehensive style examples (creative mode: {creative})...")
     total = 0
     
+    # Generate abstract images (no subject)
     for style in COMPREHENSIVE_STYLES:
         for i in range(count_per_style):
             try:
-                image = generator.generate(style=style)
+                image = generator.generate(style=style, creative_mode=creative)
                 filename = f"comprehensive_{style}_{i+1:02d}.jpg"
                 filepath = output_dir / filename
                 image.save(filepath, 'JPEG', quality=95)
@@ -45,6 +47,25 @@ def generate_comprehensive_examples(output_dir: Path, count_per_style: int = 3):
                 logger.info(f"  ✓ {filename}")
             except Exception as e:
                 logger.error(f"  ✗ Error generating {style}: {e}")
+    
+    # Generate subject-based images (landscapes, portraits, animals, interiors)
+    if include_subjects:
+        subjects = ['landscape', 'portrait', 'animal', 'interior']
+        subject_styles = ['realism', 'hyperrealism', 'impressionism', 'pop_art', 'fauvism', 
+                         'romanticism', 'classicism', 'naturalism']
+        
+        logger.info("Generating subject-based images...")
+        for subject in subjects:
+            for style in subject_styles:
+                try:
+                    image = generator.generate(style=style, subject=subject, creative_mode=creative)
+                    filename = f"comprehensive_{subject}_{style}.jpg"
+                    filepath = output_dir / filename
+                    image.save(filepath, 'JPEG', quality=95)
+                    total += 1
+                    logger.info(f"  ✓ {filename}")
+                except Exception as e:
+                    logger.error(f"  ✗ Error generating {subject} in {style}: {e}")
     
     logger.info(f"Generated {total} comprehensive style images")
 
@@ -112,7 +133,8 @@ def generate_legacy_examples(output_dir: Path, count: int = 5):
     ag = AvantGuard()
     for i in range(count):
         try:
-            image = ag.generate_image(1080, 1080, 
+            # generate_image() returns a filepath string, not an Image object
+            source_filepath = ag.generate_image(1080, 1080, 
                                     random.choice([True, False]),
                                     random.choice([True, False]),
                                     random.choice([True, False]),
@@ -120,9 +142,17 @@ def generate_legacy_examples(output_dir: Path, count: int = 5):
                                     random.choice([True, False]))
             filename = f"avantguard_{i+1:02d}.jpg"
             filepath = output_dir / filename
-            image.save(filepath, 'JPEG', quality=95)
-            total += 1
-            logger.info(f"  ✓ {filename}")
+            
+            # Copy the generated file to output directory
+            from pathlib import Path as PathLib
+            import shutil
+            src = PathLib(source_filepath)
+            if src.exists():
+                shutil.copy2(str(src), str(filepath))
+                total += 1
+                logger.info(f"  ✓ {filename}")
+            else:
+                logger.error(f"  ✗ Source file not found: {source_filepath}")
         except Exception as e:
             logger.error(f"  ✗ Error generating avantguard {i+1}: {e}")
     
@@ -135,7 +165,8 @@ def generate_all_examples(output_dir: Optional[Path] = None,
                          legacy: bool = False,
                          count_per_style: int = 3,
                          interdisciplinary_count: int = 10,
-                         legacy_count: int = 5):
+                         legacy_count: int = 5,
+                         include_subjects: bool = True):
     """
     Generate all example images.
     
@@ -147,6 +178,7 @@ def generate_all_examples(output_dir: Optional[Path] = None,
         count_per_style: Number of images per comprehensive style
         interdisciplinary_count: Number of interdisciplinary images
         legacy_count: Number of legacy images
+        include_subjects: Include subject-based images (landscapes, portraits, etc.)
     """
     if output_dir is None:
         output_dir = Path('examples')
@@ -156,7 +188,7 @@ def generate_all_examples(output_dir: Optional[Path] = None,
     logger.info(f"Output directory: {output_dir.absolute()}")
     
     if comprehensive:
-        generate_comprehensive_examples(output_dir, count_per_style)
+        generate_comprehensive_examples(output_dir, count_per_style, include_subjects=include_subjects)
     
     if interdisciplinary:
         generate_interdisciplinary_examples(output_dir, interdisciplinary_count)

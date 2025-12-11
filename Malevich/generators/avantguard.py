@@ -67,7 +67,7 @@ class AvantGuard:
 
         for i in range(random.randint(MIN_VALUE, 50)):
             if lines is True:
-                draw.line(self.random_parameters(height), fill=ImageColor.getrgb(self.random_color()))
+                draw.line(self.random_parameters(width, height), fill=ImageColor.getrgb(self.random_color()))
             else:
                 pass
             if polygon is True:
@@ -77,13 +77,13 @@ class AvantGuard:
 
         for j in range(random.randint(MIN_VALUE, 5)):
             if eclipse is True:  # Note: parameter name is 'eclipse' but should be 'ellipse'
-                draw.ellipse(self.random_parameters(width), fill=ImageColor.getcolor(self.random_color(), color_scheme))
+                draw.ellipse(self.random_parameters(width, height), fill=ImageColor.getcolor(self.random_color(), color_scheme))
             else:
                 pass
 
         for x in range(random.randint(MIN_VALUE, 10)):
             if rectangle is True:
-                draw.rectangle(self.random_parameters(width),
+                draw.rectangle(self.random_parameters(width, height),
                                fill=ImageColor.getcolor(self.random_color(), color_scheme))
             else:
                 pass
@@ -91,9 +91,36 @@ class AvantGuard:
         image.save(image_file)
         return image_file
 
-    def random_parameters(self, upper_range):
-        return (random.randint(MIN_VALUE, upper_range), random.randint(MIN_VALUE, upper_range),
-                random.randint(MIN_VALUE, upper_range), random.randint(MIN_VALUE, upper_range))
+    def random_parameters(self, width, height):
+        """
+        Generate random coordinates for drawing operations.
+        Ensures coordinates are within image bounds and properly ordered.
+        
+        Args:
+            width: Maximum x-coordinate (image width)
+            height: Maximum y-coordinate (image height)
+            
+        Returns:
+            Tuple of (x1, y1, x2, y2) coordinates within image bounds
+            For rectangles and ellipses: x1 <= x2 and y1 <= y2
+        """
+        # Ensure valid ranges: pixel coordinates are [0, width-1] and [0, height-1]
+        max_x = max(MIN_VALUE, width - 1)
+        max_y = max(MIN_VALUE, height - 1)
+        
+        # Generate two x-coordinates and ensure x1 <= x2
+        x1 = random.randint(MIN_VALUE, max_x)
+        x2 = random.randint(MIN_VALUE, max_x)
+        if x1 > x2:
+            x1, x2 = x2, x1
+        
+        # Generate two y-coordinates and ensure y1 <= y2
+        y1 = random.randint(MIN_VALUE, max_y)
+        y2 = random.randint(MIN_VALUE, max_y)
+        if y1 > y2:
+            y1, y2 = y2, y1
+        
+        return (x1, y1, x2, y2)
 
     def random_polygon(self, x, y):
         try:

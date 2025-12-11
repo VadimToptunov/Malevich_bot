@@ -167,8 +167,8 @@ class PsychiatricPerception:
             # Add colored number/letter overlays
             for _ in range(random.randint(10, 25)):
                 num = str(random.randint(0, 9))
-                x = random.randint(0, width)
-                y = random.randint(0, height)
+                x = random.randint(0, width - 1)
+                y = random.randint(0, height - 1)
                 
                 # Synesthetic color for number
                 syn_colors = {
@@ -188,12 +188,13 @@ class PsychiatricPerception:
     def apply_visual_hallucination(image: Image.Image, intensity: float = 0.2) -> Image.Image:
         """Apply visual hallucination effects (patterns, distortions)."""
         filtered = image.copy()
+        width, height = filtered.size
         
         # Add geometric patterns (common in hallucinations)
         draw = ImageDraw.Draw(filtered)
         for _ in range(random.randint(5, 15)):
-            x = random.randint(0, filtered.width)
-            y = random.randint(0, filtered.height)
+            x = random.randint(0, width - 1)
+            y = random.randint(0, height - 1)
             size = random.randint(20, 60)
             color = (random.randint(200, 255), random.randint(200, 255), random.randint(200, 255))
             
@@ -276,8 +277,9 @@ class PhysiologicalPerception:
         
         filtered = Image.new('RGB', (width, height))
         for block, (orig_x, orig_y) in blocks:
-            x = random.randint(0, max(1, width - block.width))
-            y = random.randint(0, max(1, height - block.height))
+            block_width, block_height = block.size
+            x = random.randint(0, max(1, width - block_width))
+            y = random.randint(0, max(1, height - block_height))
             filtered.paste(block, (x, y))
         
         return filtered
@@ -670,8 +672,8 @@ class ChemistryVisualization:
         )
         
         for _ in range(random.randint(20, 40)):
-            x = random.randint(0, width)
-            y = random.randint(0, height)
+            x = random.randint(0, width - 1)
+            y = random.randint(0, height - 1)
             size = random.randint(10, 30)
             
             # Rust color gradient with sophisticated colors
@@ -688,8 +690,8 @@ class ChemistryVisualization:
         )
         
         for _ in range(random.randint(10, 20)):
-            x = random.randint(0, width)
-            y = random.randint(0, height)
+            x = random.randint(0, width - 1)
+            y = random.randint(0, height - 1)
             
             # Crystal growth pattern with sophisticated colors
             crystal_color = random.choice(crystal_colors)
@@ -966,7 +968,7 @@ class InterdisciplinaryGenerator:
         enhancer = ImageEnhance.Contrast(image)
         image = enhancer.enhance(1.0 + complexity * 0.3)
         
-        enhancer = ImageEnhance.Saturation(image)
+        enhancer = ImageEnhance.Color(image)
         image = enhancer.enhance(1.0 + complexity * 0.2)
         
         return image
