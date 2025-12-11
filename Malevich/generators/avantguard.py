@@ -126,15 +126,15 @@ class AvantGuard:
         try:
             # Fixed: limit length to available range, ensuring we don't sample more than available
             # Fixed: include coordinate 0 to allow polygons at image boundaries
-            available_x = max(1, x)  # Changed from x-1 to x to include 0
-            available_y = max(1, y)  # Changed from y-1 to y to include 0
-            max_length = min(500, available_x, available_y)
-            if max_length < 2:
+            # Fixed: actual population size is x and y (not max(1, x)), so limit to min(x, y)
+            actual_population_size = min(x, y)
+            if actual_population_size < 2:
                 # If not enough points available, return default polygon
                 return [(x//4, y//4), (3*x//4, y//4), (3*x//4, 3*y//4), (x//4, 3*y//4)]
+            max_length = min(500, actual_population_size)
             length = random.randint(2, max_length)
-            # Ensure we don't try to sample more than available
-            actual_length = min(length, available_x, available_y)
+            # Ensure we don't try to sample more than the actual population size
+            actual_length = min(length, actual_population_size)
             # Fixed: use range(0, x) instead of range(1, x) to include coordinate 0
             polygon_x = random.sample(range(0, x), actual_length)
             polygon_y = random.sample(range(0, y), actual_length)

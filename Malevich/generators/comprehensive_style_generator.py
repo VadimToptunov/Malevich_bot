@@ -2742,9 +2742,15 @@ class ComprehensiveStyleGenerator:
                     face_center_x + nose_width*0.3, nose_y + face_size//3],
                    fill=(int(skin_base[0]*0.85), int(skin_base[1]*0.85), int(skin_base[2]*0.85)), outline=None)
         # Nose tip highlight
+        # Fixed: clamp color values to valid RGB range [0, 255]
+        nose_highlight = (
+            min(255, int(skin_base[0]*1.1)),
+            min(255, int(skin_base[1]*1.1)),
+            min(255, int(skin_base[2]*1.1))
+        )
         draw.ellipse([face_center_x - nose_width*0.5, nose_y + face_size//6,
                     face_center_x + nose_width*0.5, nose_y + face_size//4],
-                   fill=(int(skin_base[0]*1.1), int(skin_base[1]*1.1), int(skin_base[2]*1.1)), outline=None)
+                   fill=nose_highlight, outline=None)
         # Nostrils
         nostril_size = nose_width // 3
         draw.ellipse([face_center_x - nose_width*0.7, nose_y + face_size//5,
@@ -2895,8 +2901,11 @@ class ComprehensiveStyleGenerator:
         """
         draw = ImageDraw.Draw(image)
         
-        # Animal type
-        animal_type = random.choice(['cat', 'dog', 'bird', 'deer', 'horse', 'abstract'])
+        # Animal type - expanded variety
+        animal_type = random.choice([
+            'cat', 'dog', 'bird', 'deer', 'horse', 'rabbit', 'fox', 'wolf',
+            'bear', 'elephant', 'lion', 'tiger', 'abstract'
+        ])
         
         animal_center_x = self.center_x
         animal_center_y = self.center_y
@@ -2977,8 +2986,17 @@ class ComprehensiveStyleGenerator:
                 tail_end_y = int(tail_start_y + tail_length * math.sin(tail_angle))
                 
                 tail_width = animal_size // 8
-                draw.ellipse([tail_start_x - tail_width, tail_start_y - tail_width,
-                            tail_end_x + tail_width, tail_end_y + tail_width],
+                # Fixed: ensure coordinates are ordered correctly (x1 <= x2, y1 <= y2)
+                tail_x1 = min(tail_start_x - tail_width, tail_end_x - tail_width)
+                tail_x2 = max(tail_start_x + tail_width, tail_end_x + tail_width)
+                tail_y1 = min(tail_start_y - tail_width, tail_end_y - tail_width)
+                tail_y2 = max(tail_start_y + tail_width, tail_end_y + tail_width)
+                # Clamp to image bounds
+                tail_x1 = max(0, min(tail_x1, self.width - 1))
+                tail_x2 = max(0, min(tail_x2, self.width - 1))
+                tail_y1 = max(0, min(tail_y1, self.height - 1))
+                tail_y2 = max(0, min(tail_y2, self.height - 1))
+                draw.ellipse([tail_x1, tail_y1, tail_x2, tail_y2],
                            fill=animal_color, outline=None)
             
             # Legs
@@ -3121,9 +3139,243 @@ class ComprehensiveStyleGenerator:
                 tail_x = animal_center_x + body_width
                 tail_y = body_y
                 tail_length = animal_size // 2
-                draw.ellipse([tail_x, tail_y - tail_length//2,
-                            tail_x + tail_length, tail_y + tail_length//2],
+                # Fixed: compute coordinate ranges first, then clamp separately (correct pattern)
+                tail_x1 = tail_x - tail_length // 2
+                tail_x2 = tail_x + tail_length
+                tail_y1 = tail_y - tail_length // 2
+                tail_y2 = tail_y + tail_length // 2
+                # Ensure coordinates are ordered correctly
+                if tail_x1 > tail_x2:
+                    tail_x1, tail_x2 = tail_x2, tail_x1
+                if tail_y1 > tail_y2:
+                    tail_y1, tail_y2 = tail_y2, tail_y1
+                # Clamp to image bounds (separate step, like lines 2995-2998)
+                tail_x1 = max(0, min(tail_x1, self.width - 1))
+                tail_x2 = max(0, min(tail_x2, self.width - 1))
+                tail_y1 = max(0, min(tail_y1, self.height - 1))
+                tail_y2 = max(0, min(tail_y2, self.height - 1))
+                draw.ellipse([tail_x1, tail_y1, tail_x2, tail_y2],
                            fill=animal_color, outline=None)
+        
+        elif animal_type in ['rabbit', 'fox', 'wolf']:
+            # Small to medium mammals with similar structure
+            body_width = animal_size * 0.9
+            body_height = animal_size * 1.2
+            body_y = animal_center_y + animal_size // 4
+            
+            draw.ellipse([animal_center_x - body_width, body_y - body_height,
+                        animal_center_x + body_width, body_y + body_height],
+                       fill=animal_color, outline=None)
+            
+            # Head
+            head_size = animal_size // 2
+            head_y = body_y - body_height - head_size // 2
+            
+            draw.ellipse([animal_center_x - head_size, head_y - head_size,
+                        animal_center_x + head_size, head_y + head_size],
+                       fill=animal_color, outline=None)
+            
+            # Long ears (rabbit) or pointed ears (fox/wolf)
+            ear_size = int(head_size // 2) if animal_type == 'rabbit' else int(head_size // 3)
+            # Left ear
+            ear_x1 = int(animal_center_x - head_size // 2)
+            ear_y1 = int(head_y - head_size)
+            ear_x2 = int(ear_x1 - ear_size // 2) if animal_type == 'rabbit' else int(ear_x1)
+            ear_y2 = int(ear_y1 - ear_size * (2 if animal_type == 'rabbit' else 1))
+            draw.polygon([(ear_x1, ear_y1), (ear_x2, ear_y2), (int(ear_x1 + ear_size), ear_y1)],
+                        fill=animal_color, outline=None)
+            # Right ear
+            ear_x1 = int(animal_center_x + head_size // 2)
+            ear_x2 = int(ear_x1 + ear_size // 2) if animal_type == 'rabbit' else int(ear_x1)
+            draw.polygon([(ear_x1, ear_y1), (ear_x2, ear_y2), (int(ear_x1 - ear_size), ear_y1)],
+                        fill=animal_color, outline=None)
+            
+            # Eyes
+            eye_size = head_size // 8
+            eye_y = head_y
+            draw.ellipse([animal_center_x - head_size//3 - eye_size, eye_y - eye_size,
+                        animal_center_x - head_size//3 + eye_size, eye_y + eye_size],
+                       fill=(0, 0, 0), outline=None)
+            draw.ellipse([animal_center_x + head_size//3 - eye_size, eye_y - eye_size,
+                        animal_center_x + head_size//3 + eye_size, eye_y + eye_size],
+                       fill=(0, 0, 0), outline=None)
+            
+            # Legs
+            leg_width = animal_size // 8
+            leg_height = animal_size // 2
+            leg_y = body_y + body_height
+            for leg_x in [animal_center_x - body_width//2, animal_center_x + body_width//2]:
+                leg_x1 = max(0, min(leg_x - leg_width//2, self.width - 1))
+                leg_x2 = max(0, min(leg_x + leg_width//2, self.width - 1))
+                leg_y1 = max(0, min(leg_y, self.height - 1))
+                leg_y2 = max(0, min(leg_y + leg_height, self.height - 1))
+                if leg_x1 > leg_x2:
+                    leg_x1, leg_x2 = leg_x2, leg_x1
+                if leg_y1 > leg_y2:
+                    leg_y1, leg_y2 = leg_y2, leg_y1
+                draw.rectangle([leg_x1, leg_y1, leg_x2, leg_y2],
+                             fill=animal_color, outline=None)
+        
+        elif animal_type in ['bear', 'elephant']:
+            # Large animals
+            body_width = animal_size * 1.3
+            body_height = animal_size * 1.1
+            body_y = animal_center_y + animal_size // 4
+            
+            draw.ellipse([animal_center_x - body_width, body_y - body_height,
+                        animal_center_x + body_width, body_y + body_height],
+                       fill=animal_color, outline=None)
+            
+            # Head
+            head_size = animal_size // 1.5
+            head_y = body_y - body_height - head_size // 3
+            
+            draw.ellipse([animal_center_x - head_size, head_y - head_size,
+                        animal_center_x + head_size, head_y + head_size],
+                       fill=animal_color, outline=None)
+            
+            # Ears (large for elephant, small for bear)
+            if animal_type == 'elephant':
+                ear_size = head_size
+                # Left ear
+                ear_x1 = max(0, min(animal_center_x - head_size - ear_size//2, self.width - 1))
+                ear_x2 = max(0, min(animal_center_x - head_size + ear_size//2, self.width - 1))
+                ear_y1 = max(0, min(head_y - ear_size//2, self.height - 1))
+                ear_y2 = max(0, min(head_y + ear_size//2, self.height - 1))
+                if ear_x1 > ear_x2:
+                    ear_x1, ear_x2 = ear_x2, ear_x1
+                if ear_y1 > ear_y2:
+                    ear_y1, ear_y2 = ear_y2, ear_y1
+                draw.ellipse([ear_x1, ear_y1, ear_x2, ear_y2],
+                           fill=animal_color, outline=None)
+                # Right ear
+                ear_x1 = max(0, min(animal_center_x + head_size - ear_size//2, self.width - 1))
+                ear_x2 = max(0, min(animal_center_x + head_size + ear_size//2, self.width - 1))
+                if ear_x1 > ear_x2:
+                    ear_x1, ear_x2 = ear_x2, ear_x1
+                draw.ellipse([ear_x1, ear_y1, ear_x2, ear_y2],
+                           fill=animal_color, outline=None)
+            
+            # Trunk (elephant) or snout (bear)
+            if animal_type == 'elephant':
+                trunk_length = head_size
+                trunk_y1 = max(0, min(head_y + head_size // 2, self.height - 1))
+                trunk_y2 = max(0, min(trunk_y1 + trunk_length, self.height - 1))
+                trunk_width = head_size // 4
+                trunk_x1 = max(0, min(animal_center_x - trunk_width, self.width - 1))
+                trunk_x2 = max(0, min(animal_center_x + trunk_width, self.width - 1))
+                if trunk_x1 > trunk_x2:
+                    trunk_x1, trunk_x2 = trunk_x2, trunk_x1
+                if trunk_y1 > trunk_y2:
+                    trunk_y1, trunk_y2 = trunk_y2, trunk_y1
+                draw.ellipse([trunk_x1, trunk_y1, trunk_x2, trunk_y2],
+                           fill=animal_color, outline=None)
+            
+            # Legs (4 legs, thick)
+            leg_width = animal_size // 6
+            leg_height = animal_size
+            leg_y = body_y + body_height
+            for leg_x in [animal_center_x - body_width*0.6, animal_center_x - body_width*0.2,
+                         animal_center_x + body_width*0.2, animal_center_x + body_width*0.6]:
+                leg_x1 = max(0, min(leg_x - leg_width//2, self.width - 1))
+                leg_x2 = max(0, min(leg_x + leg_width//2, self.width - 1))
+                leg_y1 = max(0, min(leg_y, self.height - 1))
+                leg_y2 = max(0, min(leg_y + leg_height, self.height - 1))
+                if leg_x1 > leg_x2:
+                    leg_x1, leg_x2 = leg_x2, leg_x1
+                if leg_y1 > leg_y2:
+                    leg_y1, leg_y2 = leg_y2, leg_y1
+                draw.rectangle([leg_x1, leg_y1, leg_x2, leg_y2],
+                             fill=animal_color, outline=None)
+        
+        elif animal_type in ['lion', 'tiger']:
+            # Big cats
+            body_width = animal_size * 1.1
+            body_height = animal_size * 1.3
+            body_y = animal_center_y + animal_size // 4
+            
+            draw.ellipse([animal_center_x - body_width, body_y - body_height,
+                        animal_center_x + body_width, body_y + body_height],
+                       fill=animal_color, outline=None)
+            
+            # Head with mane (lion) or stripes (tiger)
+            head_size = animal_size // 1.8
+            head_y = body_y - body_height - head_size // 2
+            
+            # Mane for lion
+            if animal_type == 'lion':
+                mane_size = int(head_size * 1.3)
+                mane_color = (min(255, animal_color[0] + 30), min(255, animal_color[1] + 20), animal_color[2])
+                mane_x1 = int(max(0, min(animal_center_x - mane_size, self.width - 1)))
+                mane_x2 = int(max(0, min(animal_center_x + mane_size, self.width - 1)))
+                mane_y1 = int(max(0, min(head_y - mane_size, self.height - 1)))
+                mane_y2 = int(max(0, min(head_y + mane_size, self.height - 1)))
+                if mane_x1 > mane_x2:
+                    mane_x1, mane_x2 = mane_x2, mane_x1
+                if mane_y1 > mane_y2:
+                    mane_y1, mane_y2 = mane_y2, mane_y1
+                draw.ellipse([mane_x1, mane_y1, mane_x2, mane_y2],
+                           fill=mane_color, outline=None)
+            
+            head_x1 = max(0, min(animal_center_x - head_size, self.width - 1))
+            head_x2 = max(0, min(animal_center_x + head_size, self.width - 1))
+            head_y1 = max(0, min(head_y - head_size, self.height - 1))
+            head_y2 = max(0, min(head_y + head_size, self.height - 1))
+            if head_x1 > head_x2:
+                head_x1, head_x2 = head_x2, head_x1
+            if head_y1 > head_y2:
+                head_y1, head_y2 = head_y2, head_y1
+            draw.ellipse([head_x1, head_y1, head_x2, head_y2],
+                       fill=animal_color, outline=None)
+            
+            # Stripes for tiger
+            if animal_type == 'tiger':
+                stripe_color = (0, 0, 0)
+                for _ in range(5):
+                    stripe_x = random.randint(max(0, animal_center_x - body_width), 
+                                            min(self.width - 1, animal_center_x + body_width))
+                    stripe_y1 = max(0, min(body_y - body_height, self.height - 1))
+                    stripe_y2 = max(0, min(body_y + body_height, self.height - 1))
+                    if stripe_y1 > stripe_y2:
+                        stripe_y1, stripe_y2 = stripe_y2, stripe_y1
+                    draw.line([(stripe_x, stripe_y1), (stripe_x, stripe_y2)],
+                             fill=stripe_color, width=3)
+            
+            # Eyes
+            eye_size = head_size // 6
+            eye_y = head_y
+            eye_x1 = max(0, min(animal_center_x - head_size//3 - eye_size, self.width - 1))
+            eye_x2 = max(0, min(animal_center_x - head_size//3 + eye_size, self.width - 1))
+            eye_y1 = max(0, min(eye_y - eye_size, self.height - 1))
+            eye_y2 = max(0, min(eye_y + eye_size, self.height - 1))
+            if eye_x1 > eye_x2:
+                eye_x1, eye_x2 = eye_x2, eye_x1
+            if eye_y1 > eye_y2:
+                eye_y1, eye_y2 = eye_y2, eye_y1
+            draw.ellipse([eye_x1, eye_y1, eye_x2, eye_y2],
+                       fill=(255, 200, 0), outline=(0, 0, 0), width=2)
+            eye_x1 = max(0, min(animal_center_x + head_size//3 - eye_size, self.width - 1))
+            eye_x2 = max(0, min(animal_center_x + head_size//3 + eye_size, self.width - 1))
+            if eye_x1 > eye_x2:
+                eye_x1, eye_x2 = eye_x2, eye_x1
+            draw.ellipse([eye_x1, eye_y1, eye_x2, eye_y2],
+                       fill=(255, 200, 0), outline=(0, 0, 0), width=2)
+            
+            # Legs
+            leg_width = animal_size // 7
+            leg_height = animal_size // 1.5
+            leg_y = body_y + body_height
+            for leg_x in [animal_center_x - body_width//2, animal_center_x + body_width//2]:
+                leg_x1 = max(0, min(leg_x - leg_width//2, self.width - 1))
+                leg_x2 = max(0, min(leg_x + leg_width//2, self.width - 1))
+                leg_y1 = max(0, min(leg_y, self.height - 1))
+                leg_y2 = max(0, min(leg_y + leg_height, self.height - 1))
+                if leg_x1 > leg_x2:
+                    leg_x1, leg_x2 = leg_x2, leg_x1
+                if leg_y1 > leg_y2:
+                    leg_y1, leg_y2 = leg_y2, leg_y1
+                draw.rectangle([leg_x1, leg_y1, leg_x2, leg_y2],
+                             fill=animal_color, outline=None)
         
         else:  # abstract animal
             # Abstract animal form
