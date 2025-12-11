@@ -2,3 +2,16 @@ venv/
 config/
 __pycache__/
 .idea/
+*.jpg
+*.png
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.ico
+*.webp
+*.svg
+*.eps
+*.pdf
+*.docx
+*.doc

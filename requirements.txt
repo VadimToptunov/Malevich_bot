@@ -1,4 +1,4 @@
-# Python 3.14 required
+# Python 3.13 required
 Pillow>=10.0.0
 numpy>=1.26.0
 instagrapi>=2.0.0

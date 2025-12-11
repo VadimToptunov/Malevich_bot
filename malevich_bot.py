@@ -1,11 +1,10 @@
 import random
 
-from Malevich.magnet_image_generator import Magnet
-from Malevich import avantguard
+from Malevich.generators import Magnet, AvantGuard
 
 width = 1200
 height = 1200
-ag = avantguard.AvantGuard()
+ag = AvantGuard()
 magnet = Magnet(width, height)
 
 

@@ -9,10 +9,8 @@ import random
 from pathlib import Path
 from typing import Optional
 
-from Malevich.advanced_generator import AdvancedGenerator
-from Malevich.caption_generator import CaptionGenerator
-from Malevich.instagram_poster import InstagramPoster
-from Malevich.scheduler import PostScheduler
+from Malevich.generators import ComprehensiveStyleGenerator
+from Malevich.social import CaptionGenerator, InstagramPoster, PostScheduler
 
 # Configure logging
 logging.basicConfig(
@@ -50,7 +48,7 @@ def generate_and_post(style: Optional[str] = None,
     """
     # Generate image
     logger.info(f"Generating image (style: {style or 'auto'}, palette: {palette or 'auto'})")
-    generator = AdvancedGenerator(width=1080, height=1080)
+    generator = ComprehensiveStyleGenerator(width=1080, height=1080)
     image = generator.generate(style=style or 'auto', palette_name=palette)
     
     # Save image
