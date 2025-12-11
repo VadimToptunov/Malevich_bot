@@ -1,11 +1,10 @@
 import random
 
-from Malevich.magnet_image_generator import Magnet
-from Malevich import avantguard
+from Malevich.generators import Magnet, AvantGuard
 
 width = 1200
 height = 1200
-ag = avantguard.AvantGuard()
+ag = AvantGuard()
 magnet = Magnet(width, height)
 
 
@@ -18,4 +17,5 @@ def generate_image():
 
 if __name__ == "__main__":
     for i in range(10):
-        random.choice([generate_image(), magnet.creaate_image()])
+        # Fix: choose function, not result
+        random.choice([generate_image, magnet.create_image])()

@@ -6,7 +6,7 @@ import string
 import numpy as np
 from PIL import Image
 
-from Malevich.tech import Tech
+from Malevich.utils.tech import Tech
 
 
 class Magnet:
@@ -50,7 +50,7 @@ class Magnet:
         args = [self.buildImg(depth + 1) for n in range(nArgs)]
         return func(*args)
 
-    def creaate_image(self):
+    def create_image(self):
         img = self.buildImg()
 
         # Ensure it has the right dimensions, dX by dY by 3
@@ -58,4 +58,6 @@ class Magnet:
 
         # Convert to 8-bit, send to PIL and save
         img8Bit = np.uint8(np.rint(img.clip(0.0, 1.0) * 255.0))
-        Image.fromarray(img8Bit).save(self.tech.create_random_filename())
+        filepath = self.tech.create_random_filename()
+        Image.fromarray(img8Bit).save(filepath)
+        return filepath
