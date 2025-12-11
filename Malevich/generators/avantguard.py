@@ -125,8 +125,9 @@ class AvantGuard:
     def random_polygon(self, x, y):
         try:
             # Fixed: limit length to available range, ensuring we don't sample more than available
-            available_x = max(1, x - 1)
-            available_y = max(1, y - 1)
+            # Fixed: include coordinate 0 to allow polygons at image boundaries
+            available_x = max(1, x)  # Changed from x-1 to x to include 0
+            available_y = max(1, y)  # Changed from y-1 to y to include 0
             max_length = min(500, available_x, available_y)
             if max_length < 2:
                 # If not enough points available, return default polygon
@@ -134,8 +135,9 @@ class AvantGuard:
             length = random.randint(2, max_length)
             # Ensure we don't try to sample more than available
             actual_length = min(length, available_x, available_y)
-            polygon_x = random.sample(range(1, x), actual_length)
-            polygon_y = random.sample(range(1, y), actual_length)
+            # Fixed: use range(0, x) instead of range(1, x) to include coordinate 0
+            polygon_x = random.sample(range(0, x), actual_length)
+            polygon_y = random.sample(range(0, y), actual_length)
             # Fixed: return list of coordinate tuples, not flat list
             return list(zip(polygon_x, polygon_y))
         except Exception as error:

@@ -93,11 +93,9 @@ class ComprehensiveStyleGenerator:
             (200, 0, 255), (0, 255, 150), (255, 0, 150),
             (150, 0, 255), (255, 150, 0)
         ],
-        # Dadaism: random, unexpected colors
-        'dadaism': [
-            (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-            for _ in range(12)
-        ],
+        # Dadaism: random, unexpected colors (generated at runtime, not at import time)
+        # Note: This list is a placeholder. Actual colors are generated in _get_palette()
+        'dadaism': None,  # Special marker: generate random colors at runtime
         # Constructivism: red, black, white, geometric
         'constructivism': [
             (220, 20, 60), (0, 0, 0), (255, 255, 255),
@@ -289,9 +287,19 @@ class ComprehensiveStyleGenerator:
     def _get_palette(self, palette_name: Optional[str], style: str) -> List[Tuple[int, int, int]]:
         """Get color palette based on style."""
         if palette_name and palette_name in self.STYLE_PALETTES:
-            return self.STYLE_PALETTES[palette_name]
+            palette = self.STYLE_PALETTES[palette_name]
+            # Fixed: Generate random colors for dadaism at runtime, not at import time
+            if palette is None and palette_name == 'dadaism':
+                return [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                        for _ in range(12)]
+            return palette
         
-        return self.STYLE_PALETTES.get(style, self.STYLE_PALETTES['realism'])
+        palette = self.STYLE_PALETTES.get(style, self.STYLE_PALETTES['realism'])
+        # Fixed: Generate random colors for dadaism at runtime, not at import time
+        if palette is None and style == 'dadaism':
+            return [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    for _ in range(12)]
+        return palette
     
     def _get_background_color(self, palette: List[Tuple[int, int, int]]) -> Tuple[int, int, int]:
         """Select background color from palette."""
