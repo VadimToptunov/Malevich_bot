@@ -39,6 +39,9 @@ except ImportError:
 
 # Import advanced color system
 from Malevich.utils.color_systems import AdvancedColorSystem
+# Import art knowledge base and advanced animal generator
+from Malevich.generators.art_knowledge_base import ArtKnowledgeBase
+from Malevich.generators.advanced_animal_generator import AdvancedAnimalGenerator
 
 
 class ComprehensiveStyleGenerator:
@@ -217,12 +220,15 @@ class ComprehensiveStyleGenerator:
         palette = self._get_palette(palette_name, style)
         image = Image.new('RGB', (self.width, self.height), self._get_background_color(palette))
         
+        # Store current style for subject generation
+        self._current_style = style
+        
         # Generate subject first if specified
         if subject:
             subject_methods = {
                 'landscape': self._create_landscape,
                 'portrait': self._create_portrait,
-                'animal': self._create_animal,
+                'animal': self._create_animal_advanced,  # Use advanced animal generation
                 'interior': self._create_interior,
             }
             if subject in subject_methods:
@@ -2895,10 +2901,24 @@ class ComprehensiveStyleGenerator:
         
         return image
     
+    def _create_animal_advanced(self, image: Image.Image, palette: List[Tuple[int, int, int]]) -> Image.Image:
+        """
+        Create animal using advanced generator with art knowledge base.
+        Uses anatomical references and style-specific techniques.
+        """
+        style = getattr(self, '_current_style', 'realism')
+        animal_gen = AdvancedAnimalGenerator(self.width, self.height)
+        return animal_gen.generate_animal(image, palette, style=style)
+    
     def _create_animal(self, image: Image.Image, palette: List[Tuple[int, int, int]]) -> Image.Image:
         """
         Create animal: body, head, features, natural pose.
+        Legacy method - kept for compatibility.
         """
+        # Use advanced generator if style is available
+        if hasattr(self, '_current_style'):
+            return self._create_animal_advanced(image, palette)
+        
         draw = ImageDraw.Draw(image)
         
         # Animal type - expanded variety
